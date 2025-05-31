@@ -19,7 +19,7 @@ public class ResponseObject {
     String message;
     Object data;
 
-    public static ResponseEntity<ResponseObject> APIRepsonse(int status, String message, HttpStatus httpStatus, Object data) {
+    public static ResponseEntity<ResponseObject> APIResponse(int status, String message, HttpStatus httpStatus, Object data) {
         return ResponseEntity.status(httpStatus).body(
                 new ResponseObject(status, message, data)
         );

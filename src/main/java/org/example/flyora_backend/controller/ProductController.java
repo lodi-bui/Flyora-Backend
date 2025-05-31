@@ -19,23 +19,49 @@ public class ProductController {
     @GetMapping("")
     public ResponseEntity<ResponseObject> getAllProducts() {
         try {
-          return  ResponseObject.APIRepsonse(400, "Get Product Sucess !", HttpStatus.OK, productService.getAllProducts());
+            return ResponseObject.APIResponse(400, "Get Product Success !", HttpStatus.OK, productService.getAllProducts());
         } catch (Exception e) {
-         return   ResponseObject.APIRepsonse(400, "Get Product failed !", HttpStatus.BAD_REQUEST, null);
+            return ResponseObject.APIResponse(400, "Get Product failed !", HttpStatus.BAD_REQUEST, null);
         }
     }
-    @PostMapping("")
-    public ResponseEntity<ResponseObject> CreateProduct(@RequestBody
-                                                            Product product) {
-        return ResponseObject.APIRepsonse(200, "Create product", HttpStatus.OK, "");
-    }
-    @PutMapping("")
-    public ResponseEntity<ResponseObject> UpdateProduct(@RequestBody Product product) {
-        return ResponseObject.APIRepsonse(200, "Update product", HttpStatus.OK, "");
-    }
-    @DeleteMapping("")
-    public ResponseEntity<ResponseObject> DeleteProduct(@RequestBody Product product) {
-        return ResponseObject.APIRepsonse(200, "Delete product", HttpStatus.OK, "");
+
+    @GetMapping("/one")
+    public ResponseEntity<ResponseObject> getOneProduct(@RequestParam long id) {
+        try {
+            return ResponseObject.APIResponse(400,"Get One Product Success !",HttpStatus.OK, productService.getOneProduct(id));
+        } catch (Exception e) {
+            return ResponseObject.APIResponse(400,"Get One Product failed !",HttpStatus.BAD_REQUEST, null);
+        }
+
     }
 
+    //lay danh sach san pham available (status = true)
+    @GetMapping("/status")
+    public ResponseEntity<ResponseObject> getProductByStatus() {
+        try {
+            return ResponseObject.APIResponse(400,"Get Available Product Success", HttpStatus.OK, productService.getProductByStatus());
+        }catch (Exception e) {
+            return ResponseObject.APIResponse(400,"Get Available Product failed !",HttpStatus.BAD_REQUEST, null);
+        }
+    }
+
+    //Tao 1 san pham vao database
+    @PostMapping("")
+    public ResponseEntity<ResponseObject> addProduct(@RequestBody Product product) {
+        try {
+            return ResponseObject.APIResponse(400, "Add Product Success", HttpStatus.OK, productService.addProduct(product));
+        } catch (Exception e) {
+            return ResponseObject.APIResponse(400, "Add Product failed !",HttpStatus.BAD_REQUEST, null);
+        }
+    }
+
+    //Xoa san pham dua vao id
+    @DeleteMapping("")
+    public ResponseEntity<ResponseObject> deleteProductById(@RequestParam int id) {
+        try {
+            return ResponseObject.APIResponse(400, "Delete Product By ID Success", HttpStatus.OK, productService.deleteProductById(id));
+        } catch (Exception e) {
+            return ResponseObject.APIResponse(400, "Delete Product By ID failed", HttpStatus.OK, productService.deleteProductById(id));
+        }
+    }
 }
