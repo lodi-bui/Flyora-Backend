@@ -27,6 +27,7 @@ public class Product {
 
     private Integer stockQuantity;
 
+    @Builder.Default
     private Boolean status = true;
 //    @JsonIgnoreProperties
 //    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)

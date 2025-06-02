@@ -24,6 +24,7 @@ public class Order {
 
     private Timestamp orderDate;
 
+    @Builder.Default
     private Boolean status = true;
 
     @ManyToOne

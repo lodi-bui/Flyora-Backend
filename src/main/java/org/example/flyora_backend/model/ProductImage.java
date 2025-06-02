@@ -19,6 +19,7 @@ public class ProductImage {
 
     private String imageUrl;
 
+    @Builder.Default
     private Boolean status = true;
 
     @ManyToOne
