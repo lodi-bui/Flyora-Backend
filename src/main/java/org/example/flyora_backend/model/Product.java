@@ -2,13 +2,10 @@ package org.example.flyora_backend.model;
 
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.List;
 
 @Entity
 @Data

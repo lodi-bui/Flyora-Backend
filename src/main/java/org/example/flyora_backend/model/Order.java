@@ -29,7 +29,7 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserDTO user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;

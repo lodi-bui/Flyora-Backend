@@ -2,7 +2,7 @@ package org.example.flyora_backend.security;
 
 import java.util.List;
 
-import org.example.flyora_backend.model.User;
+import org.example.flyora_backend.model.UserDTO;
 import org.example.flyora_backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +16,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private UserRepository userRepo;
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        UserDTO user = userRepo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return new org.springframework.security.core.userdetails.User(
             user.getName(),

@@ -5,7 +5,6 @@ package org.example.flyora_backend.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Timestamp;
 
 @Entity
 @Data
