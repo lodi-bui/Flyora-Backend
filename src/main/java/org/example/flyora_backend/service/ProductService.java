@@ -13,18 +13,17 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    public List<Product> getProductByCategory(Product.ProductCategory category) {
+        return productRepository.findByCategory(category);
+    }
 
     public List<Product> getAllProducts() {
         return productRepository.findAll();
     }
 
-    public Optional<Product> getOneProduct(long id) {
+    public Optional<Product> getOneProduct(int id) {
         return productRepository.findById(id);
-    }
-
-    public List<Product> getProductByStatus() {
-        return productRepository.findByStatus(true);
-    }
+    }    
 
     public Object addProduct(Product product) {
         return productRepository.save(product);
@@ -34,5 +33,6 @@ public class ProductService {
         return productRepository.deleteProductById(id);
     }
 
+    
 
 }

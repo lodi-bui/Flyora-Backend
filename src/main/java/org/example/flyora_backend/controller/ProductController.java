@@ -1,5 +1,7 @@
 package org.example.flyora_backend.controller;
 
+import java.util.List;
+
 import org.example.flyora_backend.model.Product;
 import org.example.flyora_backend.model.response.ResponseObject;
 import org.example.flyora_backend.service.ProductService;
@@ -8,12 +10,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RequestMapping("/api/v1/products")
 @RestController
 public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @GetMapping("/category/{category}")
+    public ResponseEntity<?> getProductByCategory(@PathVariable Product.ProductCategory category) 
+    {
+        List<Product> products = productService.getProductByCategory(category);
+        if(products.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Exist Category " + category);
+        }
+        return ResponseEntity.ok(products);
+    }
+    
     @GetMapping("")
     public ResponseEntity<ResponseObject> getAllProducts() {
         try {
@@ -24,23 +37,13 @@ public class ProductController {
     }
 
     @GetMapping("/one")
-    public ResponseEntity<ResponseObject> getOneProduct(@RequestParam long id) {
+    public ResponseEntity<ResponseObject> getOneProduct(@RequestParam int id) {
         try {
             return ResponseObject.APIResponse(400,"Get One Product Success !",HttpStatus.OK, productService.getOneProduct(id));
         } catch (Exception e) {
             return ResponseObject.APIResponse(400,"Get One Product failed !",HttpStatus.BAD_REQUEST, null);
         }
 
-    }
-
-    //lay danh sach san pham available (status = true)
-    @GetMapping("/status")
-    public ResponseEntity<ResponseObject> getProductByStatus() {
-        try {
-            return ResponseObject.APIResponse(400,"Get Available Product Success", HttpStatus.OK, productService.getProductByStatus());
-        }catch (Exception e) {
-            return ResponseObject.APIResponse(400,"Get Available Product failed !",HttpStatus.BAD_REQUEST, null);
-        }
     }
 
     //Tao 1 san pham vao database

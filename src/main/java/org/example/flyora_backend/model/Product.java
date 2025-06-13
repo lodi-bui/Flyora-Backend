@@ -17,8 +17,9 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String name;
     private String description;
+
+    private String name;
 
     private BigDecimal price;
 
@@ -26,8 +27,29 @@ public class Product {
 
     @Builder.Default
     private Boolean status = true;
-//    @JsonIgnoreProperties
-//    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-//    private List<ProductImage> images;
+
+    @Enumerated(EnumType.STRING)
+    private ProductCategory category;
+
+    public enum ProductCategory 
+    {
+        FOOD,
+        TOYS,
+        FURNITURE
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "birdType_id")
+    private BirdType birdType;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    private FoodDetail foodDetail;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    private ToyDetail toyDetail;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    private FurnitureDetail furnitureDetail;
+
 }
 
