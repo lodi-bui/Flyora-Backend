@@ -3,6 +3,7 @@ package org.example.flyora_backend.controller;
 import java.util.List;
 
 import org.example.flyora_backend.model.Product;
+import org.example.flyora_backend.model.ProductCategory;
 import org.example.flyora_backend.model.response.ResponseObject;
 import org.example.flyora_backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,59 +11,50 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RequestMapping("/api/v1/products")
 @RestController
 public class ProductController {
+
     @Autowired
     private ProductService productService;
 
-    @GetMapping("/category/{category}")
-    public ResponseEntity<?> getProductByCategory(@PathVariable Product.ProductCategory category) 
-    {
+    @GetMapping("/best-sellers/top2")
+    public ResponseEntity<ResponseObject> getTop2BestSellersEachCategory() {
+        List<Product> topProducts = productService.getTopBestSellersEachCategory(2);
+        return ResponseObject.APIResponse(200, "Top 2 best-sellers for each category", HttpStatus.OK, topProducts);
+    }
+
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<?> getProductByCategory(@PathVariable Integer categoryId) {
+        ProductCategory category = ProductCategory.builder().id(categoryId).build();
         List<Product> products = productService.getProductByCategory(category);
-        if(products.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Exist Category " + category);
+        if (products.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category not found.");
         }
         return ResponseEntity.ok(products);
     }
-    
+
     @GetMapping("")
     public ResponseEntity<ResponseObject> getAllProducts() {
-        try {
-            return ResponseObject.APIResponse(400, "Get Product Success !", HttpStatus.OK, productService.getAllProducts());
-        } catch (Exception e) {
-            return ResponseObject.APIResponse(400, "Get Product failed !", HttpStatus.BAD_REQUEST, null);
-        }
+        return ResponseObject.APIResponse(
+                200, "Get Products Success!", HttpStatus.OK, productService.getAllProducts());
     }
 
     @GetMapping("/one")
     public ResponseEntity<ResponseObject> getOneProduct(@RequestParam int id) {
-        try {
-            return ResponseObject.APIResponse(400,"Get One Product Success !",HttpStatus.OK, productService.getOneProduct(id));
-        } catch (Exception e) {
-            return ResponseObject.APIResponse(400,"Get One Product failed !",HttpStatus.BAD_REQUEST, null);
-        }
-
+        return ResponseObject.APIResponse(
+                200, "Get One Product Success!", HttpStatus.OK, productService.getOneProduct(id));
     }
 
-    //Tao 1 san pham vao database
     @PostMapping("")
     public ResponseEntity<ResponseObject> addProduct(@RequestBody Product product) {
-        try {
-            return ResponseObject.APIResponse(400, "Add Product Success", HttpStatus.OK, productService.addProduct(product));
-        } catch (Exception e) {
-            return ResponseObject.APIResponse(400, "Add Product failed !",HttpStatus.BAD_REQUEST, null);
-        }
+        return ResponseObject.APIResponse(
+                201, "Add Product Success", HttpStatus.CREATED, productService.addProduct(product));
     }
 
-    //Xoa san pham dua vao id
     @DeleteMapping("")
     public ResponseEntity<ResponseObject> deleteProductById(@RequestParam int id) {
-        try {
-            return ResponseObject.APIResponse(400, "Delete Product By ID Success", HttpStatus.OK, productService.deleteProductById(id));
-        } catch (Exception e) {
-            return ResponseObject.APIResponse(400, "Delete Product By ID failed", HttpStatus.OK, productService.deleteProductById(id));
-        }
+        productService.deleteProductById(id);
+        return ResponseObject.APIResponse(204, "Delete Product Success", HttpStatus.NO_CONTENT, null);
     }
 }

@@ -1,10 +1,7 @@
 package org.example.flyora_backend.model;
 
-
-
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
 
 @Entity
@@ -23,23 +20,17 @@ public class Product {
 
     private BigDecimal price;
 
-    private Integer stockQuantity;
+    private Integer stock;
 
     @Builder.Default
     private Boolean status = true;
 
-    @Enumerated(EnumType.STRING)
+    @ManyToOne
+    @JoinColumn(name = "category_id")
     private ProductCategory category;
 
-    public enum ProductCategory 
-    {
-        FOOD,
-        TOYS,
-        FURNITURE
-    }
-
     @ManyToOne
-    @JoinColumn(name = "birdType_id")
+    @JoinColumn(name = "bird_type_id") 
     private BirdType birdType;
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
@@ -51,5 +42,7 @@ public class Product {
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
     private FurnitureDetail furnitureDetail;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer salesCount = 0;
 }
-
