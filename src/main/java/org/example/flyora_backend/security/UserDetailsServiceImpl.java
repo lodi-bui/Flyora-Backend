@@ -19,7 +19,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         UserDTO user = userRepo.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         return new org.springframework.security.core.userdetails.User(
-            user.getName(),
+            user.getUsername(),
             user.getPassword(),
             List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );

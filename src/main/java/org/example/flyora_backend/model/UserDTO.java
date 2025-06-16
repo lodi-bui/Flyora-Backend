@@ -16,7 +16,8 @@ public class UserDTO {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String name;
+    @Column(unique = true)
+    private String username;
 
     @Column(unique = true)
     private String email;
