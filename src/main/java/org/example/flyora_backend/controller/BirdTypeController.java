@@ -14,7 +14,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
-@RequestMapping("/api/birdtypes")
+@RequestMapping("/api/v1/birdtypes")
 @Tag(name = "Bird Type API", description = "Quản lý loại chim")
 public class BirdTypeController {
 

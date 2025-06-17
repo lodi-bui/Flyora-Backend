@@ -20,7 +20,7 @@ public class LoginController {
     // @Autowired
     // private UserDAO dao;
 
-    @PostMapping("/login")
+    @PostMapping("/api/v1/login")
     public Map<String, Object> login(@RequestBody Map<String, String> credentials, HttpSession session) {        
         // String userID = credentials.get("userID");
         // String password = credentials.get("password");

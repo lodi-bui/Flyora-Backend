@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/delivery")
+@RequestMapping("/api/v1/delivery")
 public class ShipperController {
     @GetMapping("/deliveries")
     public String viewDeliveries() {

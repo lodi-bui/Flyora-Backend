@@ -24,7 +24,7 @@ public class ProductController {
         return ResponseObject.APIResponse(200, "Top 2 best-sellers for each category", HttpStatus.OK, topProducts);
     }
 
-    @GetMapping("/category/{categoryId}")
+    @GetMapping("/api/v1/category/{categoryId}")
     public ResponseEntity<?> getProductByCategory(@PathVariable Integer categoryId) {
         ProductCategory category = ProductCategory.builder().id(categoryId).build();
         List<Product> products = productService.getProductByCategory(category);
