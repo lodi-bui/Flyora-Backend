@@ -24,11 +24,12 @@ public class Order {
 
     private Timestamp orderDate;
 
+    @Builder.Default
     private Boolean status = true;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserDTO user;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;

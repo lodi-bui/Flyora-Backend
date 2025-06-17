@@ -1,14 +1,8 @@
 package org.example.flyora_backend.model;
 
-
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.List;
 
 @Entity
 @Data
@@ -20,16 +14,35 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String name;
     private String description;
+
+    private String name;
 
     private BigDecimal price;
 
-    private Integer stockQuantity;
+    private Integer stock;
 
+    @Builder.Default
     private Boolean status = true;
-//    @JsonIgnoreProperties
-//    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-//    private List<ProductImage> images;
-}
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private ProductCategory category;
+
+    @ManyToOne
+    @JoinColumn(name = "bird_type_id") 
+    private BirdType birdType;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    private FoodDetail foodDetail;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    private ToyDetail toyDetail;
+
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
+    private FurnitureDetail furnitureDetail;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer salesCount = 0;
+}

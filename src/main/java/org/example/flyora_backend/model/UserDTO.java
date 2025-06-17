@@ -11,7 +11,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class UserDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -26,6 +26,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Builder.Default
     private Boolean status = true;
 
     public enum Role {

@@ -18,6 +18,8 @@ public class OrderDetail {
 
     private Integer quantity;
     private BigDecimal price;
+
+    @Builder.Default
     private Boolean status = true;
 
     @ManyToOne
