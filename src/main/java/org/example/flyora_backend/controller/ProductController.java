@@ -1,5 +1,7 @@
 package org.example.flyora_backend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.flyora_backend.model.Product;
 import org.example.flyora_backend.model.response.ResponseObject;
 import org.example.flyora_backend.service.ProductService;
@@ -12,7 +14,9 @@ import java.util.List;
 
 @RequestMapping("/api/v1/products")
 @RestController
+@Tag(name = "Product Controller")
 public class ProductController {
+
     @Autowired
     private ProductService productService;
 
@@ -25,6 +29,7 @@ public class ProductController {
         }
     }
 
+    @Operation(summary = "Get 1 Product", description = "API get one product")
     @GetMapping("/one")
     public ResponseEntity<ResponseObject> getOneProduct(@RequestParam long id) {
         try {
@@ -36,6 +41,7 @@ public class ProductController {
     }
 
     //lay danh sach san pham available (status = true)
+    @Operation(summary = "Get List", description = "API get list product")
     @GetMapping("/status")
     public ResponseEntity<ResponseObject> getProductByStatus() {
         try {
@@ -46,6 +52,7 @@ public class ProductController {
     }
 
     //Tao 1 san pham vao database
+    @Operation(summary = "Add product", description = "API create new product")  //mo ta ten chuc nang
     @PostMapping("")
     public ResponseEntity<ResponseObject> addProduct(@RequestBody Product product) {
         try {
@@ -56,12 +63,13 @@ public class ProductController {
     }
 
     //Xoa san pham dua vao id
+    @Operation(summary = "Delete product", description = "API delete product")
     @DeleteMapping("")
     public ResponseEntity<ResponseObject> deleteProductById(@RequestParam int id) {
         try {
             return ResponseObject.APIResponse(400, "Delete Product By ID Success", HttpStatus.OK, productService.deleteProductById(id));
         } catch (Exception e) {
-            return ResponseObject.APIResponse(400, "Delete Product By ID failed", HttpStatus.OK, productService.deleteProductById(id));
+            return ResponseObject.APIResponse(400, "Delete Product By ID failed", HttpStatus.BAD_REQUEST, productService.deleteProductById(id));
         }
     }
 }
