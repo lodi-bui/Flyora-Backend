@@ -1,10 +1,13 @@
 package org.example.flyora_backend.controller;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import org.example.flyora_backend.DTOs.ProductDetailDTO;
 import org.example.flyora_backend.model.Product;
 import org.example.flyora_backend.model.ProductCategory;
 import org.example.flyora_backend.model.response.ResponseObject;
+import org.example.flyora_backend.repository.ProductRepository;
 import org.example.flyora_backend.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +20,26 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<ProductDetailDTO> getProductDetail(@PathVariable Integer id) {
+        ProductDetailDTO detail = productService.getProductDetail(id);
+        return ResponseEntity.ok(detail);
+    }
+    
+    @GetMapping("/filter")
+    public ResponseEntity<List<Product>> filterProducts(
+        @RequestParam(required = false) Integer categoryId,
+        @RequestParam(required = false) BigDecimal minPrice,
+        @RequestParam(required = false) BigDecimal maxPrice,
+        @RequestParam(required = false) Integer birdTypeId // "tag"
+    ) {
+        List<Product> products = productRepository.filterProducts(categoryId, minPrice, maxPrice, birdTypeId);
+        return ResponseEntity.ok(products);
+    }
 
     @GetMapping("/best-sellers/top2")
     public ResponseEntity<ResponseObject> getTop2BestSellersEachCategory() {
