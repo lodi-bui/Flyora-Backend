@@ -1,7 +1,5 @@
 package org.example.flyora_backend.model;
 
-
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +8,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
-@Table(name = "`order`") // tránh lỗi từ khóa SQL
+@Table(name = "`order`") // tránh lỗi SQL từ khóa
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,8 +26,8 @@ public class Order {
     private Boolean status = true;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private UserDTO user;
+    @JoinColumn(name = "customer_id") // chuẩn theo ERD
+    private Customer customer;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderDetail> orderDetails;
