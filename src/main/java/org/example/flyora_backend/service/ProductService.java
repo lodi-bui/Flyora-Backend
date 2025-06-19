@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.example.flyora_backend.DTOs.ProductDetailDTO;
 import org.example.flyora_backend.model.*;
 import org.example.flyora_backend.repository.*;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,18 +20,26 @@ public class ProductService {
     private final FoodDetailRepository foodDetailRepository;
     private final ToyDetailRepository toyDetailRepository;
     private final FurnitureDetailRepository furnitureDetailRepository;
+    private final OrderItemRepository orderItemRepository;
 
     public List<Product> getTopBestSellersEachCategory(int topN) {
         List<Product> result = new ArrayList<>();
         List<ProductCategory> categories = productCategoryRepository.findAll();
 
         for (ProductCategory category : categories) {
-            List<Product> topProducts = productRepository
-                    .findByCategoryOrderBySalesCountDesc(category, PageRequest.of(0, topN));
-            result.addAll(topProducts);
+            List<Map<String, Object>> topSellingIds =
+                    orderItemRepository.findTopSellingProductIdsByCategory(category);
+
+            int count = 0;
+            for (Map<String, Object> row : topSellingIds) {
+                Integer productId = (Integer) row.get("productId");
+                productRepository.findById(productId).ifPresent(result::add);
+                if (++count >= topN) break;
+            }
         }
         return result;
     }
+
 
     public List<Product> getProductByCategory(ProductCategory category) {
         return productRepository.findByCategory(category);
