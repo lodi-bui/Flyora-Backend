@@ -1,25 +1,24 @@
 package org.example.flyora_backend.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class SalesStaff {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Size(max = 255)
+    @Column(name = "name")
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "shop_owner_id")
-    private ShopOwner shopOwner;
-
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
+
 }

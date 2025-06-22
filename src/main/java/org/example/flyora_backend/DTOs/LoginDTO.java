@@ -1,11 +1,13 @@
 package org.example.flyora_backend.DTOs;
 
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class LoginDTO {
+    @NotBlank
     private String username;
+
+    @NotBlank
     private String password;
 }

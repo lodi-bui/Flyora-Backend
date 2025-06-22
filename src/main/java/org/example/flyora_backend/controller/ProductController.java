@@ -1,83 +1,56 @@
 package org.example.flyora_backend.controller;
 
-import java.math.BigDecimal;
 import java.util.List;
 
+import org.example.flyora_backend.DTOs.ProductBestSellerDTO;
 import org.example.flyora_backend.DTOs.ProductDetailDTO;
-import org.example.flyora_backend.model.Product;
-import org.example.flyora_backend.model.ProductCategory;
-import org.example.flyora_backend.model.response.ResponseObject;
-import org.example.flyora_backend.repository.ProductRepository;
+import org.example.flyora_backend.DTOs.ProductFilterDTO;
+import org.example.flyora_backend.DTOs.ProductListDTO;
 import org.example.flyora_backend.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@RequestMapping("/api/v1/products")
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+
 @RestController
+@RequestMapping("/api/v1/products")
+@Tag(name = "Product List & Filter", description = "Xem và lọc danh sách sản phẩm")
+@RequiredArgsConstructor
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
-    @Autowired
-    private ProductRepository productRepository;
-
-    @GetMapping("/{id}/detail")
-    public ResponseEntity<ProductDetailDTO> getProductDetail(@PathVariable Integer id) {
-        ProductDetailDTO detail = productService.getProductDetail(id);
-        return ResponseEntity.ok(detail);
+    @PostMapping("/filter")
+    @Operation(
+        summary = "Lọc danh sách sản phẩm",
+        description = """
+        Nhận: name (keyword), categoryId, birdTypeId, minPrice, maxPrice, page, size.
+        Trả về danh sách sản phẩm phân trang: content[], totalElements, totalPages, page number, size.
+        """
+    )
+    public ResponseEntity<Page<ProductListDTO>> filterProducts(@RequestBody ProductFilterDTO request) {
+        return ResponseEntity.ok(productService.filterProducts(request));
     }
     
-    @GetMapping("/filter")
-    public ResponseEntity<List<Product>> filterProducts(
-        @RequestParam(required = false) Integer categoryId,
-        @RequestParam(required = false) BigDecimal minPrice,
-        @RequestParam(required = false) BigDecimal maxPrice,
-        @RequestParam(required = false) Integer birdTypeId // "tag"
-    ) {
-        List<Product> products = productRepository.filterProducts(categoryId, minPrice, maxPrice, birdTypeId);
-        return ResponseEntity.ok(products);
+    @GetMapping("/{id}")
+    @Operation(
+        summary = "Lấy chi tiết sản phẩm theo ID",
+        description = "Trả về thông tin chi tiết của sản phẩm bao gồm tên, mô tả, giá, tồn kho, loại danh mục và loại chim."
+    )
+    public ResponseEntity<ProductDetailDTO> getProductDetail(@PathVariable Integer id) {
+        return ResponseEntity.ok(productService.getProductDetail(id));
     }
 
-    @GetMapping("/best-sellers/top2")
-    public ResponseEntity<ResponseObject> getTop2BestSellersEachCategory() {
-        List<Product> topProducts = productService.getTopBestSellersEachCategory(2);
-        return ResponseObject.APIResponse(200, "Top 2 best-sellers for each category", HttpStatus.OK, topProducts);
+    @GetMapping("/best-sellers/top1")
+    @Operation(
+        summary = "Lấy sản phẩm bán chạy nhất mỗi danh mục",
+        description = "Trả về 1 sản phẩm có số lượng bán cao nhất của từng danh mục."
+    )
+    public ResponseEntity<List<ProductBestSellerDTO>> getTop1BestSellersPerCategory() {
+        return ResponseEntity.ok(productService.getTop1BestSellersPerCategory());
     }
 
-    @GetMapping("/api/v1/category/{categoryId}")
-    public ResponseEntity<?> getProductByCategory(@PathVariable Integer categoryId) {
-        ProductCategory category = ProductCategory.builder().id(categoryId).build();
-        List<Product> products = productService.getProductByCategory(category);
-        if (products.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Category not found.");
-        }
-        return ResponseEntity.ok(products);
-    }
-
-    @GetMapping("")
-    public ResponseEntity<ResponseObject> getAllProducts() {
-        return ResponseObject.APIResponse(
-                200, "Get Products Success!", HttpStatus.OK, productService.getAllProducts());
-    }
-
-    @GetMapping("/one")
-    public ResponseEntity<ResponseObject> getOneProduct(@RequestParam int id) {
-        return ResponseObject.APIResponse(
-                200, "Get One Product Success!", HttpStatus.OK, productService.getOneProduct(id));
-    }
-
-    @PostMapping("")
-    public ResponseEntity<ResponseObject> addProduct(@RequestBody Product product) {
-        return ResponseObject.APIResponse(
-                201, "Add Product Success", HttpStatus.CREATED, productService.addProduct(product));
-    }
-
-    @DeleteMapping("")
-    public ResponseEntity<ResponseObject> deleteProductById(@RequestParam int id) {
-        productService.deleteProductById(id);
-        return ResponseObject.APIResponse(204, "Delete Product Success", HttpStatus.NO_CONTENT, null);
-    }
 }

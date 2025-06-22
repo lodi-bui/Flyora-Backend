@@ -1,38 +1,41 @@
 package org.example.flyora_backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
+import java.math.BigDecimal;
+
+@Getter
+@Setter
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class FoodDetail {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Integer id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @ManyToOne
-    @JoinColumn(name = "food_type_id")
-    private FoodType foodType;
-
+    @Size(max = 255)
+    @Column(name = "material")
     private String material;
+
+    @Size(max = 255)
+    @Column(name = "origin")
     private String origin;
+
+    @Size(max = 255)
+    @Column(name = "usage_target")
     private String usageTarget;
-    private Double weight;
+
+    @Column(name = "weight", precision = 10, scale = 2)
+    private BigDecimal weight;
+
+    @Size(max = 255)
+    @Column(name = "image_url")
     private String imageUrl;
+
 }
