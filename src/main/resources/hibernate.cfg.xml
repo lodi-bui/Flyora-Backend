@@ -1,0 +1,11 @@
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.connection.url">
+            jdbc:mysql://mysql-3ae9f5ef-buihongochan-780a.l.aivencloud.com:20403/defaultdb?sslMode=REQUIRED
+        </property>
+        <property name="hibernate.connection.username">avnadmin</property>
+        <property name="hibernate.connection.password">AVNS_eYYfhCkqK7SwZSYoMTc</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
+    </session-factory>
+</hibernate-configuration>

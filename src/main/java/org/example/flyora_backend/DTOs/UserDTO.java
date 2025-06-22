@@ -20,8 +20,8 @@ public class UserDTO {
         this.username = account.getUsername();
         this.email = account.getEmail();
         this.phone = account.getPhone();
-        this.isActive = account.isActive();
-        this.isApproved = account.isApproved();
+        this.isActive = account.getIsActive();
+        this.isApproved = account.getIsApproved();
         this.role = account.getRole() != null ? account.getRole().getName() : null;
     }
 }

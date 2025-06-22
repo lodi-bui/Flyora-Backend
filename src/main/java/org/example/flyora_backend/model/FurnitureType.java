@@ -1,20 +1,22 @@
 package org.example.flyora_backend.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class FurnitureType {
     @Id
+    @Column(name = "id", nullable = false)
     private Integer id;
 
+    @Size(max = 255)
+    @Column(name = "name")
     private String name;
+
 }

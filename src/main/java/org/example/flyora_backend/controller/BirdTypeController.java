@@ -4,25 +4,26 @@ import java.util.List;
 
 import org.example.flyora_backend.model.BirdType;
 import org.example.flyora_backend.repository.BirdTypeRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.*;
 
 @RestController
-@RequestMapping("/api/v1/birdtypes")
-@Tag(name = "Bird Type API", description = "Quản lý loại chim")
+@RequestMapping("/api/v1/bird-types")
+@Tag(name = "BirdType List")
+@RequiredArgsConstructor
 public class BirdTypeController {
 
-    @Autowired
-    private BirdTypeRepository birdTypeRepository;
+    private final BirdTypeRepository birdTypeRepository;
 
     @GetMapping
-    @Operation(summary = "Lấy tất cả loại chim", description = "Trả về danh sách các loại chim hiện có trong hệ thống")
+    @Operation(
+        summary = "Lấy danh sách loại chim",
+        description = "Trả về toàn bộ danh sách BirdType trong hệ thống (id, name)."
+    )
     public ResponseEntity<List<BirdType>> getAllBirdTypes() {
         return ResponseEntity.ok(birdTypeRepository.findAll());
     }
