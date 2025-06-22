@@ -2,9 +2,12 @@ package org.example.flyora_backend.service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import org.example.flyora_backend.DTOs.CreateOrderDTO;
 import org.example.flyora_backend.DTOs.CreatePaymentDTO;
+import org.example.flyora_backend.DTOs.OrderDetailDTO;
+import org.example.flyora_backend.DTOs.OrderHistoryDTO;
 import org.example.flyora_backend.model.Order;
 import org.example.flyora_backend.model.OrderItem;
 import org.example.flyora_backend.model.Payment;
@@ -82,5 +85,28 @@ public class OrderServiceImpl implements OrderService {
             "paymentId", payment.getId(),
             "status", payment.getStatus()
         );
+    }
+
+    @Override
+    public List<OrderHistoryDTO> getOrdersByCustomer(Integer customerId) {
+        List<Order> orders = orderRepository.findByCustomerIdOrderByOrderDateDesc(customerId);
+
+        return orders.stream().map(order -> {
+            List<OrderDetailDTO> details = order.getOrderDetails().stream().map(detail -> {
+                return new OrderDetailDTO(
+                        detail.getProduct().getId(),
+                        detail.getProduct().getName(),
+                        detail.getQuantity(),
+                        detail.getPrice()
+                );
+            }).toList();
+
+            return new OrderHistoryDTO(
+                    order.getId(),
+                    order.getOrderDate(),
+                    order.getStatus(),
+                    details
+            );
+        }).toList();
     }
 }
