@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
-@Table(name = "`order`") // tránh lỗi SQL từ khóa
+@Table(name = "Order") // tránh lỗi SQL từ khóa
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

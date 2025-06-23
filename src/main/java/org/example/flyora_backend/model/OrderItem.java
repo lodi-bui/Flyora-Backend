@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
+@Table(name = "OrderItem")
 public class OrderItem {
     @Id
     @Column(name = "id", nullable = false)

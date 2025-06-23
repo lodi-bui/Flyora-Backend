@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @Entity
+@Table(name = "FoodDetail")
 public class FoodDetail {
     @Id
     @Column(name = "id", nullable = false)

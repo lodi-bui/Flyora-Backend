@@ -10,6 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@Table(name = "SystemLog")
 public class SystemLog {
     @Id
     @Column(name = "id", nullable = false)
