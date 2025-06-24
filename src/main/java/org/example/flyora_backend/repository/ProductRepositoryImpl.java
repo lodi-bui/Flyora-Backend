@@ -92,12 +92,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public List<ProductBestSellerDTO> findBestSellersTop1PerCategory() {
         String sql = """
             SELECT p.id AS productId, p.name AS productName, c.name AS categoryName, 
-                   p.price AS price, SUM(oi.quantity) AS totalSold
-            FROM order_item oi
-            JOIN product p ON oi.product_id = p.id
-            JOIN product_category c ON p.category_id = c.id
+                p.price AS price, SUM(oi.quantity) AS totalSold
+            FROM OrderItem oi
+            JOIN Product p ON oi.product_id = p.id
+            JOIN ProductCategory c ON p.category_id = c.id
             GROUP BY p.id, p.name, c.name, p.price
         """;
+
 
         Query query = em.createNativeQuery(sql);
         
