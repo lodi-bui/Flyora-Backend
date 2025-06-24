@@ -23,7 +23,7 @@ public class IssueController {
      * 🔸 Nhận: customerId, orderId, content
      * 🔸 Trả: message xác nhận
      */
-    @PostMapping
+    @PostMapping("/submit")
     @Operation(
         summary = "Gửi báo lỗi đơn hàng",
         description = "Gửi phản hồi liên quan đến đơn hàng từ khách hàng. Trả về message."

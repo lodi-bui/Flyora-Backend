@@ -18,7 +18,7 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
-    @PostMapping
+    @PostMapping("/submit")
     @Operation(
         summary = "Gửi đánh giá sản phẩm",
         description = "Khách hàng gửi đánh giá và bình luận cho sản phẩm đã mua"
