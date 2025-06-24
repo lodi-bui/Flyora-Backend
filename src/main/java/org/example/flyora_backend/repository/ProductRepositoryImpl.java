@@ -54,7 +54,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 root.get("category").get("name"),
                 root.get("birdType").get("name"),
                 root.get("price"),
-                root.get("stock")
+                root.get("stock"),
+                root.get("imageUrl")
         )).where(predicates.toArray(new Predicate[0]));
 
         TypedQuery<ProductListDTO> query = em.createQuery(cq);
@@ -92,11 +93,15 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     public List<ProductBestSellerDTO> findBestSellersTop1PerCategory() {
         String sql = """
             SELECT p.id AS productId, p.name AS productName, c.name AS categoryName, 
-                p.price AS price, SUM(oi.quantity) AS totalSold
+                p.price AS price, SUM(oi.quantity) AS totalSold,
+                COALESCE(fd.image_url, td.image_url, fud.image_url) AS imageUrl
             FROM OrderItem oi
             JOIN Product p ON oi.product_id = p.id
             JOIN ProductCategory c ON p.category_id = c.id
-            GROUP BY p.id, p.name, c.name, p.price
+            LEFT JOIN FoodDetail fd ON p.id = fd.product_id AND c.name = 'FOODS'
+            LEFT JOIN ToyDetail td ON p.id = td.product_id AND c.name = 'TOYS'
+            LEFT JOIN FurnitureDetail fud ON p.id = fud.product_id AND c.name = 'FURNITURE'
+            GROUP BY p.id, p.name, c.name, p.price, imageUrl
         """;
 
 
@@ -114,8 +119,9 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             String category = (String) row[2];
             BigDecimal price = (BigDecimal) row[3];
             Long totalSold = ((Number) row[4]).longValue();
+            String imageUrl = (String) row[5];
 
-            ProductBestSellerDTO dto = new ProductBestSellerDTO(productId, name, category, price, totalSold);
+            ProductBestSellerDTO dto = new ProductBestSellerDTO(productId, name, category, price, totalSold, imageUrl);
 
             // Giữ lại sản phẩm có lượng bán cao nhất cho mỗi category
             if (!bestSellers.containsKey(category) || bestSellers.get(category).totalSold() < totalSold) {

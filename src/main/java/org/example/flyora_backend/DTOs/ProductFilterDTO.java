@@ -12,4 +12,5 @@ public class ProductFilterDTO {
     private BigDecimal maxPrice;
     private Integer page = 0;         // phân trang
     private Integer size = 10;
+    private String imageUrl;
 }

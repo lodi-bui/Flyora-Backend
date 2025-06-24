@@ -7,5 +7,6 @@ public record ProductBestSellerDTO(
     String productName,
     String categoryName,
     BigDecimal price,
-    Long totalSold
+    Long totalSold,
+    String imageUrl
 ) {}
