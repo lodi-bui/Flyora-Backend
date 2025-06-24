@@ -11,4 +11,5 @@ public class ProductListDTO {
     private String birdType;
     private BigDecimal price;
     private Integer stock;
+    private String imageUrl;
 }

@@ -17,7 +17,10 @@ import org.example.flyora_backend.repository.CustomerRepository;
 import org.example.flyora_backend.repository.RoleRepository;
 import org.example.flyora_backend.repository.SalesStaffRepository;
 import org.example.flyora_backend.repository.ShopOwnerRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
 import lombok.*;
 
 @Service
@@ -65,7 +68,7 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponseDTO loginCustomer(LoginDTO request) {
         Account account = accountRepository
                 .findByUsernameAndPassword(request.getUsername(), request.getPassword())
-                .orElseThrow(() -> new RuntimeException("Sai tên đăng nhập hoặc mật khẩu"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Sai tên đăng nhập hoặc mật khẩu"));
 
         if (!account.getIsActive() || !account.getIsApproved()) {
             throw new RuntimeException("Tài khoản chưa được kích hoạt");

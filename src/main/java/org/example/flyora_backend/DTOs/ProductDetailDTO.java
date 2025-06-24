@@ -14,4 +14,5 @@ public class ProductDetailDTO {
     private Integer stock;
     private String category;
     private String birdType;
+    private String imageUrl;
 }

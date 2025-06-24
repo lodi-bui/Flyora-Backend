@@ -40,16 +40,34 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
+        String imageUrl = null;
+        String categoryName = product.getCategory().getName();
+
+        // Lấy ảnh từ bảng chi tiết tương ứng với loại sản phẩm
+        switch (categoryName) {
+            case "FOODS" -> {
+                imageUrl = product.getFoodDetail() != null ? product.getFoodDetail().getImageUrl() : null;
+            }
+            case "TOYS" -> {
+                imageUrl = product.getToyDetail() != null ? product.getToyDetail().getImageUrl() : null;
+            }
+            case "FURNITURE" -> {
+                imageUrl = product.getFurnitureDetail() != null ? product.getFurnitureDetail().getImageUrl() : null;
+            }
+        }
+
         return new ProductDetailDTO(
             product.getId(),
             product.getName(),
             product.getDescription(),
             product.getPrice(),
             product.getStock(),
-            product.getCategory().getName(),
-            product.getBirdType().getName()
+            categoryName,
+            product.getBirdType().getName(),
+            imageUrl
         );
     }
+
 
     @Override
     public List<ProductBestSellerDTO> getTop1BestSellersPerCategory() {
