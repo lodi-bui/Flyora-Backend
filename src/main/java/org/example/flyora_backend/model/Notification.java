@@ -9,6 +9,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@Table(name = "Notification")
 public class Notification {
     @Id
     @Column(name = "id", nullable = false)

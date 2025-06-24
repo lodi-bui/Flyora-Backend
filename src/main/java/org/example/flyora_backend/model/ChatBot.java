@@ -9,6 +9,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
+@Table(name = "ChatBot")
 public class ChatBot {
     @Id
     @Column(name = "id", nullable = false)
