@@ -38,7 +38,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             AND (:minPrice IS NULL OR p.price >= :minPrice)
             AND (:maxPrice IS NULL OR p.price <= :maxPrice)
             ORDER BY p.id
-            LIMIT :limit OFFSET :offset
         """;
 
         Query query = em.createNativeQuery(sql);
@@ -47,8 +46,6 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         query.setParameter("birdTypeId", birdTypeId);
         query.setParameter("minPrice", minPrice);
         query.setParameter("maxPrice", maxPrice);
-        query.setParameter("limit", pageable.getPageSize());
-        query.setParameter("offset", pageable.getOffset());
 
         @SuppressWarnings("unchecked")
         List<Object[]> rows = query.getResultList();
