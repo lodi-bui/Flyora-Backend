@@ -7,7 +7,6 @@ import org.example.flyora_backend.DTOs.ProductDetailDTO;
 import org.example.flyora_backend.DTOs.ProductFilterDTO;
 import org.example.flyora_backend.DTOs.ProductListDTO;
 import org.example.flyora_backend.service.ProductService;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,8 +30,13 @@ public class ProductController {
         Trả về danh sách sản phẩm phân trang: content[], totalElements, totalPages, page number, size.
         """
     )
-    public ResponseEntity<Page<ProductListDTO>> filterProducts(@RequestBody ProductFilterDTO request) {
-        return ResponseEntity.ok(productService.filterProducts(request));
+    public ResponseEntity<?> filterProducts(@RequestBody ProductFilterDTO request) {
+        try {
+            return ResponseEntity.ok(productService.filterProducts(request));
+        } catch (Exception e) {
+            e.printStackTrace(); // In chi tiết ra log server
+            return ResponseEntity.status(500).body("Lỗi xử lý filter: " + e.getMessage());
+        }
     }
     
     @GetMapping("/{id}")
