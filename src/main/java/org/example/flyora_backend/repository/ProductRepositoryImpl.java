@@ -1,11 +1,8 @@
 package org.example.flyora_backend.repository;
 
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.*;
-
 import org.example.flyora_backend.DTOs.ProductBestSellerDTO;
 import org.example.flyora_backend.DTOs.ProductListDTO;
-import org.example.flyora_backend.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;    
@@ -25,68 +22,71 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
     @Override
     public Page<ProductListDTO> filterProducts(String name, Integer categoryId, Integer birdTypeId, BigDecimal minPrice, BigDecimal maxPrice, Pageable pageable) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<ProductListDTO> cq = cb.createQuery(ProductListDTO.class);
-        Root<Product> root = cq.from(Product.class);
+        String sql = """
+            SELECT p.id, p.name, c.name AS category, bt.name AS birdType,
+                p.price, p.stock,
+                COALESCE(fd.image_url, td.image_url, fud.image_url) AS imageUrl
+            FROM Product p
+            JOIN ProductCategory c ON p.category_id = c.id
+            JOIN BirdType bt ON p.bird_type_id = bt.id
+            LEFT JOIN FoodDetail fd ON p.id = fd.product_id AND c.name = 'FOODS'
+            LEFT JOIN ToyDetail td ON p.id = td.product_id AND c.name = 'TOYS'
+            LEFT JOIN FurnitureDetail fud ON p.id = fud.product_id AND c.name = 'FURNITURE'
+            WHERE (:name IS NULL OR LOWER(p.name) LIKE CONCAT('%', LOWER(:name), '%'))
+            AND (:categoryId IS NULL OR p.category_id = :categoryId)
+            AND (:birdTypeId IS NULL OR p.bird_type_id = :birdTypeId)
+            AND (:minPrice IS NULL OR p.price >= :minPrice)
+            AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+            ORDER BY p.id
+            LIMIT :limit OFFSET :offset
+        """;
 
-        List<Predicate> predicates = new ArrayList<>();
+        Query query = em.createNativeQuery(sql);
+        query.setParameter("name", name);
+        query.setParameter("categoryId", categoryId);
+        query.setParameter("birdTypeId", birdTypeId);
+        query.setParameter("minPrice", minPrice);
+        query.setParameter("maxPrice", maxPrice);
+        query.setParameter("limit", pageable.getPageSize());
+        query.setParameter("offset", pageable.getOffset());
 
-        if (name != null && !name.isEmpty()) {
-            predicates.add(cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
-        }
-        if (categoryId != null) {
-            predicates.add(cb.equal(root.get("category").get("id"), categoryId));
-        }
-        if (birdTypeId != null) {
-            predicates.add(cb.equal(root.get("birdType").get("id"), birdTypeId));
-        }
-        if (minPrice != null) {
-            predicates.add(cb.greaterThanOrEqualTo(root.get("price"), minPrice));
-        }
-        if (maxPrice != null) {
-            predicates.add(cb.lessThanOrEqualTo(root.get("price"), maxPrice));
-        }
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = query.getResultList();
 
-        cq.select(cb.construct(
-                ProductListDTO.class,
-                root.get("id"),
-                root.get("name"),
-                root.get("category").get("name"),
-                root.get("birdType").get("name"),
-                root.get("price"),
-                root.get("stock"),
-                root.get("imageUrl")
-        )).where(predicates.toArray(new Predicate[0]));
-
-        TypedQuery<ProductListDTO> query = em.createQuery(cq);
-        query.setFirstResult((int) pageable.getOffset());
-        query.setMaxResults(pageable.getPageSize());
-
-        // Count query
-        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-        Root<Product> countRoot = countQuery.from(Product.class);
-        List<Predicate> countPredicates = new ArrayList<>();
-
-        if (name != null && !name.isEmpty()) {
-            countPredicates.add(cb.like(cb.lower(countRoot.get("name")), "%" + name.toLowerCase() + "%"));
-        }
-        if (categoryId != null) {
-            countPredicates.add(cb.equal(countRoot.get("category").get("id"), categoryId));
-        }
-        if (birdTypeId != null) {
-            countPredicates.add(cb.equal(countRoot.get("birdType").get("id"), birdTypeId));
-        }
-        if (minPrice != null) {
-            countPredicates.add(cb.greaterThanOrEqualTo(countRoot.get("price"), minPrice));
-        }
-        if (maxPrice != null) {
-            countPredicates.add(cb.lessThanOrEqualTo(countRoot.get("price"), maxPrice));
+        List<ProductListDTO> dtos = new ArrayList<>();
+        for (Object[] row : rows) {
+            ProductListDTO dto = new ProductListDTO();
+            dto.setId((Integer) row[0]);
+            dto.setName((String) row[1]);
+            dto.setCategory((String) row[2]);
+            dto.setBirdType((String) row[3]);
+            dto.setPrice((BigDecimal) row[4]);
+            dto.setStock((Integer) row[5]);
+            dto.setImageUrl((String) row[6]);
+            dtos.add(dto);
         }
 
-        countQuery.select(cb.count(countRoot)).where(countPredicates.toArray(new Predicate[0]));
-        Long count = em.createQuery(countQuery).getSingleResult();
+        String countSql = """
+            SELECT COUNT(*)
+            FROM Product p
+            JOIN ProductCategory c ON p.category_id = c.id
+            WHERE (:name IS NULL OR LOWER(p.name) LIKE CONCAT('%', LOWER(:name), '%'))
+            AND (:categoryId IS NULL OR p.category_id = :categoryId)
+            AND (:birdTypeId IS NULL OR p.bird_type_id = :birdTypeId)
+            AND (:minPrice IS NULL OR p.price >= :minPrice)
+            AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+        """;
 
-        return new PageImpl<>(query.getResultList(), pageable, count);
+        Query countQuery = em.createNativeQuery(countSql);
+        countQuery.setParameter("name", name);
+        countQuery.setParameter("categoryId", categoryId);
+        countQuery.setParameter("birdTypeId", birdTypeId);
+        countQuery.setParameter("minPrice", minPrice);
+        countQuery.setParameter("maxPrice", maxPrice);
+
+        long total = ((Number) countQuery.getSingleResult()).longValue();
+
+        return new PageImpl<>(dtos, pageable, total);
     }
 
     @Override
@@ -131,4 +131,43 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
 
         return new ArrayList<>(bestSellers.values());
     }
+
+    @Override
+    public List<ProductListDTO> searchByName(String name) {
+    String sql = """
+        SELECT p.id, p.name, c.name AS category, bt.name AS birdType,
+            p.price, p.stock,
+            COALESCE(fd.image_url, td.image_url, fud.image_url) AS imageUrl
+        FROM Product p
+        JOIN ProductCategory c ON p.category_id = c.id
+        JOIN BirdType bt ON p.bird_type_id = bt.id
+        LEFT JOIN FoodDetail fd ON p.id = fd.product_id AND c.name = 'FOODS'
+        LEFT JOIN ToyDetail td ON p.id = td.product_id AND c.name = 'TOYS'
+        LEFT JOIN FurnitureDetail fud ON p.id = fud.product_id AND c.name = 'FURNITURE'
+        WHERE LOWER(p.name) LIKE CONCAT('%', LOWER(:name), '%')
+        ORDER BY p.name ASC
+    """;
+
+        Query query = em.createNativeQuery(sql);
+        query.setParameter("name", name);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = query.getResultList();
+
+        List<ProductListDTO> result = new ArrayList<>();
+        for (Object[] row : rows) {
+            ProductListDTO dto = new ProductListDTO();
+            dto.setId((Integer) row[0]);
+            dto.setName((String) row[1]);
+            dto.setCategory((String) row[2]);
+            dto.setBirdType((String) row[3]);
+            dto.setPrice((BigDecimal) row[4]);
+            dto.setStock((Integer) row[5]);
+            dto.setImageUrl((String) row[6]);
+            result.add(dto);
+        }
+
+        return result;
+    }
+
 }

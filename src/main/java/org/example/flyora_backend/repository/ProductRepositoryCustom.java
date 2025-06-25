@@ -19,4 +19,6 @@ public interface ProductRepositoryCustom {
     );
 
     List<ProductBestSellerDTO> findBestSellersTop1PerCategory();
+
+    List<ProductListDTO> searchByName(String name);
 }

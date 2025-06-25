@@ -68,9 +68,13 @@ public class ProductServiceImpl implements ProductService {
         );
     }
 
-
     @Override
     public List<ProductBestSellerDTO> getTop1BestSellersPerCategory() {
         return productRepository.findBestSellersTop1PerCategory();
+    }
+
+    @Override
+    public List<ProductListDTO> searchByName(String name) {
+        return productRepository.searchByName(name);
     }
 }
