@@ -53,4 +53,10 @@ public class ProductController {
         return ResponseEntity.ok(productService.getTop1BestSellersPerCategory());
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductListDTO>> searchProductsByName(@RequestParam String name) {
+        List<ProductListDTO> products = productService.searchByName(name);
+        return ResponseEntity.ok(products);
+    }
+
 }
