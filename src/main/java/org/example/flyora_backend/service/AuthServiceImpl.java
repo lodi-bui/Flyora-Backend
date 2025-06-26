@@ -78,6 +78,7 @@ public class AuthServiceImpl implements AuthService {
 
         LoginResponseDTO response = new LoginResponseDTO();
         response.setUserId(account.getId());
+        response.setName(account.getUsername());
         response.setRole(roleName);
 
         // Lấy tên người dùng từ bảng tương ứng
