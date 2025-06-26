@@ -39,9 +39,8 @@ public class OrderServiceImpl implements OrderService {
         customer.setId(dto.getCustomerId());
         order.setCustomer(customer);
 
-        order.setStatus(false); // Tạm hiểu false là trạng thái "chờ xử lý"
-
-        order.setOrderDate(new Timestamp(System.currentTimeMillis()));
+        order.setStatus("PENDING"); // hoặc "WAITING", "UNPAID", tùy cách bạn định nghĩa
+        order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
         order = orderRepository.save(order);
 
@@ -89,7 +88,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderHistoryDTO> getOrdersByCustomer(Integer customerId) {
-        List<Order> orders = orderRepository.findByCustomerIdOrderByOrderDateDesc(customerId);
+        List<Order> orders = orderRepository.findByCustomerIdOrderByCreatedAtDesc(customerId);
 
         return orders.stream().map(order -> {
             List<OrderDetailDTO> details = order.getOrderDetails().stream().map(detail -> {
@@ -103,7 +102,7 @@ public class OrderServiceImpl implements OrderService {
 
             return new OrderHistoryDTO(
                     order.getId(),
-                    order.getOrderDate(),
+                    order.getCreatedAt(),
                     order.getStatus(),
                     details
             );
