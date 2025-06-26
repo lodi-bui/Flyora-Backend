@@ -41,11 +41,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
         """;
 
         Query query = em.createNativeQuery(sql);
-        query.setParameter("name", name);
-        query.setParameter("categoryId", categoryId);
-        query.setParameter("birdTypeId", birdTypeId);
-        query.setParameter("minPrice", minPrice);
-        query.setParameter("maxPrice", maxPrice);
+        query.setParameter("name", name != null ? name : null);
+        query.setParameter("categoryId", categoryId != null ? categoryId : null);
+        query.setParameter("birdTypeId", birdTypeId != null ? birdTypeId : null);
+        query.setParameter("minPrice", minPrice != null ? minPrice : null);
+        query.setParameter("maxPrice", maxPrice != null ? maxPrice : null);
 
         @SuppressWarnings("unchecked")
         List<Object[]> rows = query.getResultList();
