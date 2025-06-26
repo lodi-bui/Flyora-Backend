@@ -26,4 +26,15 @@ public class Role {
     @Column(name = "description")
     private String description;
 
+    public Role(Integer id) {
+        this.id = id;
+        this.name = switch (id) {
+            case 1 -> "Admin";
+            case 2 -> "ShopOwner";
+            case 3 -> "SalesStaff";
+            case 4 -> "Customer";
+            default -> "UNKNOWN";
+        };
+    }
+
 }
