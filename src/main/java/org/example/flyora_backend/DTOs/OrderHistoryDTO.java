@@ -10,6 +10,6 @@ import java.util.List;
 public class OrderHistoryDTO {
     private Integer orderId;
     private Timestamp orderDate;
-    private Boolean status;
+    private String status;
     private List<OrderDetailDTO> items;
 }
