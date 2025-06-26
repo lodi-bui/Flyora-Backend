@@ -16,9 +16,14 @@ public class AccountService {
         acc.setUsername(dto.getUsername());
         acc.setPassword(dto.getPassword());
         acc.setPhone(dto.getPhone());
-        acc.setRole(new Role(dto.getRoleId()));
-        acc.setIsActive(true);
-        acc.setIsApproved(false);
+
+        Role role = new Role();
+        role.setId(dto.getRoleId());
+        acc.setRole(role);
+
+        acc.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
+        acc.setIsApproved(dto.getIsApproved() != null ? dto.getIsApproved() : false);
+        
         return accountRepository.save(acc);
     }
 }
