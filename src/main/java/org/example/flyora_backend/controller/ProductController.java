@@ -2,74 +2,87 @@ package org.example.flyora_backend.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.example.flyora_backend.DTOs.ProductBestSellerDTO;
+import org.example.flyora_backend.DTOs.ProductDetailDTO;
+import org.example.flyora_backend.DTOs.ProductFilterDTO;
+import org.example.flyora_backend.DTOs.ProductListDTO;
 import org.example.flyora_backend.model.Product;
 import org.example.flyora_backend.model.response.ResponseObject;
 import org.example.flyora_backend.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/api/v1/products")
 @RestController
-@Tag(name = "Product Controller")
+@RequestMapping("/api/v1/products")
+@Tag(name = "Product API", description = "API liên quan đến sản phẩm: xem, thêm, xóa, lọc, tìm kiếm...")
+@RequiredArgsConstructor
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
 
-    @GetMapping("")
-    public ResponseEntity<ResponseObject> getAllProducts() {
+    @Operation(summary = "Lọc danh sách sản phẩm", description = """
+        Nhận: name (keyword), categoryId, birdTypeId, minPrice, maxPrice, page, size.
+        Trả về danh sách sản phẩm phân trang: content[], totalElements, totalPages, page number, size.
+    """)
+    @PostMapping("/filter")
+    public ResponseEntity<?> filterProducts(@RequestBody ProductFilterDTO request) {
         try {
-            return ResponseObject.APIResponse(400, "Get Product Success !", HttpStatus.OK, productService.getAllProducts());
+            return ResponseEntity.ok(productService.filterProducts(request));
         } catch (Exception e) {
-            return ResponseObject.APIResponse(400, "Get Product failed !", HttpStatus.BAD_REQUEST, null);
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Lỗi xử lý filter: " + e.getMessage());
         }
     }
 
-    @Operation(summary = "Get 1 Product", description = "API get one product")
-    @GetMapping("/one")
-    public ResponseEntity<ResponseObject> getOneProduct(@RequestParam long id) {
-        try {
-            return ResponseObject.APIResponse(400,"Get One Product Success !",HttpStatus.OK, productService.getOneProduct(id));
-        } catch (Exception e) {
-            return ResponseObject.APIResponse(400,"Get One Product failed !",HttpStatus.BAD_REQUEST, null);
-        }
-
+    @Operation(summary = "Lấy chi tiết sản phẩm theo ID", description = "Trả về thông tin chi tiết của sản phẩm.")
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductDetailDTO> getProductDetail(@PathVariable Integer id) {
+        return ResponseEntity.ok(productService.getProductDetail(id));
     }
 
-    //lay danh sach san pham available (status = true)
-    @Operation(summary = "Get List", description = "API get list product")
+    @Operation(summary = "Lấy sản phẩm bán chạy nhất mỗi danh mục", description = "Trả về sản phẩm có số lượng bán cao nhất của từng danh mục.")
+    @GetMapping("/best-sellers/top1")
+    public ResponseEntity<List<ProductBestSellerDTO>> getTop1BestSellersPerCategory() {
+        return ResponseEntity.ok(productService.getTop1BestSellersPerCategory());
+    }
+
+    @Operation(summary = "Tìm sản phẩm theo tên", description = "Tìm kiếm sản phẩm theo từ khóa.")
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductListDTO>> searchProductsByName(@RequestParam String name) {
+        return ResponseEntity.ok(productService.searchByName(name));
+    }
+
+    @Operation(summary = "Lấy danh sách sản phẩm đang hoạt động", description = "Chỉ lấy các sản phẩm có status = true.")
     @GetMapping("/status")
     public ResponseEntity<ResponseObject> getProductByStatus() {
         try {
-            return ResponseObject.APIResponse(400,"Get Available Product Success", HttpStatus.OK, productService.getProductByStatus());
-        }catch (Exception e) {
-            return ResponseObject.APIResponse(400,"Get Available Product failed !",HttpStatus.BAD_REQUEST, null);
+            return ResponseObject.APIResponse(200, "Get Available Product Success", HttpStatus.OK, productService.getProductByStatus());
+        } catch (Exception e) {
+            return ResponseObject.APIResponse(400, "Get Available Product failed!", HttpStatus.BAD_REQUEST, null);
         }
     }
 
-    //Tao 1 san pham vao database
-    @Operation(summary = "Add product", description = "API create new product")  //mo ta ten chuc nang
+    @Operation(summary = "Tạo sản phẩm mới", description = "Thêm một sản phẩm vào cơ sở dữ liệu.")
     @PostMapping("")
     public ResponseEntity<ResponseObject> addProduct(@RequestBody Product product) {
         try {
-            return ResponseObject.APIResponse(400, "Add Product Success", HttpStatus.OK, productService.addProduct(product));
+            return ResponseObject.APIResponse(200, "Add Product Success", HttpStatus.OK, productService.addProduct(product));
         } catch (Exception e) {
-            return ResponseObject.APIResponse(400, "Add Product failed !",HttpStatus.BAD_REQUEST, null);
+            return ResponseObject.APIResponse(400, "Add Product failed!", HttpStatus.BAD_REQUEST, null);
         }
     }
 
-    //Xoa san pham dua vao id
-    @Operation(summary = "Delete product", description = "API delete product")
+    @Operation(summary = "Xoá sản phẩm theo ID", description = "Xoá một sản phẩm dựa vào ID.")
     @DeleteMapping("")
     public ResponseEntity<ResponseObject> deleteProductById(@RequestParam int id) {
         try {
-            return ResponseObject.APIResponse(400, "Delete Product By ID Success", HttpStatus.OK, productService.deleteProductById(id));
+            return ResponseObject.APIResponse(200, "Delete Product By ID Success", HttpStatus.OK, productService.deleteProductById(id));
         } catch (Exception e) {
-            return ResponseObject.APIResponse(400, "Delete Product By ID failed", HttpStatus.BAD_REQUEST, productService.deleteProductById(id));
+            return ResponseObject.APIResponse(400, "Delete Product By ID failed", HttpStatus.BAD_REQUEST, null);
         }
     }
 }

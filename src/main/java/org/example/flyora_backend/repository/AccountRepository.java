@@ -1,8 +1,13 @@
 package org.example.flyora_backend.repository;
 
-import org.example.flyora_backend.entities.Account;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.repository.CrudRepository;
+import java.util.Optional;
 
-public interface AccountRepository extends JpaRepository<Account, Long> {
+import org.example.flyora_backend.model.Account; // Giả sử dùng package model (đồng nhất với main)
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface AccountRepository extends JpaRepository<Account, Integer> {
+    
+    boolean existsByUsername(String username);
+
+    Optional<Account> findByUsernameAndPassword(String username, String password);
 }
