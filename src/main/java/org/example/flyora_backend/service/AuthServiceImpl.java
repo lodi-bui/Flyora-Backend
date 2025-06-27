@@ -83,28 +83,31 @@ public class AuthServiceImpl implements AuthService {
 
         // Lấy tên người dùng từ bảng tương ứng
         switch (roleName) {
-            case "CUSTOMER" -> {
+            case "Customer" -> {
                 Customer c = customerRepository.findByAccountId(account.getId())
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy customer"));
                 response.setName(c.getName());
+                response.setLinkedId(c.getId()); // 🔴 Gán Customer ID
             }
-            case "SHOP_OWNER" -> {
+            case "ShopOwner" -> {
                 ShopOwner s = shopOwnerRepository.findByAccountId(account.getId())
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy shop owner"));
                 response.setName(s.getName());
+                response.setLinkedId(s.getId()); // 🔴 Gán ShopOwner ID
             }
-            case "ADMIN" -> {
+            case "Admin" -> {
                 Admin a = adminRepository.findByAccountId(account.getId())
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy admin"));
                 response.setName(a.getName());
+                response.setLinkedId(a.getId()); // 🔴 Gán Admin ID
             }
-            case "STAFF" -> {
+            case "SalesStaff" -> {
                 SalesStaff staff = salesStaffRepository.findByAccountId(account.getId())
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy staff"));
                 response.setName(staff.getName());
+                response.setLinkedId(staff.getId()); // 🔴 Gán Staff ID
             }
         }
-
         return response;
     }
 
