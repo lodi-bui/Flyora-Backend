@@ -4,12 +4,21 @@ import org.example.flyora_backend.DTOs.AccountDTO;
 import org.example.flyora_backend.model.Account;
 import org.example.flyora_backend.model.Role;
 import org.example.flyora_backend.repository.AccountRepository;
+import org.example.flyora_backend.repository.RoleRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AccountService {
 
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
+    private final RoleRepository roleRepository;
+
+    public AccountService(AccountRepository accountRepository, RoleRepository roleRepository) {
+        this.accountRepository = accountRepository;
+        this.roleRepository = roleRepository;
+    }
 
     public Account createAccount(AccountDTO dto) {
         Account acc = new Account();
@@ -23,7 +32,11 @@ public class AccountService {
 
         acc.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         acc.setIsApproved(dto.getIsApproved() != null ? dto.getIsApproved() : false);
-        
+
         return accountRepository.save(acc);
+    }
+
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
     }
 }
