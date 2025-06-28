@@ -7,11 +7,12 @@ import lombok.Setter;
 
 import java.time.Instant;
 
+@Entity
 @Getter
 @Setter
-@Entity
 @Table(name = "DelivaryNote")
 public class DeliveryNote {
+
     @Id
     @Column(name = "id", nullable = false)
     private Integer id;
@@ -41,5 +42,4 @@ public class DeliveryNote {
 
     @Column(name = "actual_delivery_date")
     private Instant actualDeliveryDate;
-
 }

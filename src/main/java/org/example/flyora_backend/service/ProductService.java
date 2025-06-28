@@ -7,6 +7,7 @@ import org.example.flyora_backend.DTOs.ProductBestSellerDTO;
 import org.example.flyora_backend.DTOs.ProductDetailDTO;
 import org.example.flyora_backend.DTOs.ProductFilterDTO;
 import org.example.flyora_backend.DTOs.ProductListDTO;
+import org.example.flyora_backend.model.Product;
 import org.springframework.data.domain.Page;
 
 public interface ProductService {
@@ -17,5 +18,11 @@ public interface ProductService {
     List<ProductBestSellerDTO> getTop1BestSellersPerCategory();
 
     List<ProductListDTO> searchByName(String name);
+
+    List<ProductListDTO> getProductByStatus();
+
+    Product addProduct(Product product);
+
+    boolean deleteProductById(int id);
 }
 

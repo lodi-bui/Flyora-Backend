@@ -3,9 +3,9 @@ package org.example.flyora_backend.controller;
 import org.example.flyora_backend.DTOs.ChangePasswordDTO;
 import org.example.flyora_backend.DTOs.ProfileDTO;
 import org.example.flyora_backend.DTOs.UpdateProfileDTO;
-import org.example.flyora_backend.Utils.JwtUtil;
 import org.example.flyora_backend.model.Account;
 import org.example.flyora_backend.service.ProfileService;
+import org.example.flyora_backend.utils.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
