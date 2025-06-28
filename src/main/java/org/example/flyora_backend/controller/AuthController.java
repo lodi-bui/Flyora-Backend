@@ -19,31 +19,38 @@ public class AuthController {
     @Autowired
     private AuthServiceImpl authService;
 
-    /**
-     * ✅ API Đăng ký khách hàng
-     * 🔹 POST /api/auth/register
-     * 🔸 Nhận: username, password, email, phone, name
-     * 🔸 Trả: message + userId
-     */
     @PostMapping("/register")
     @Operation(
         summary = "Đăng ký tài khoản khách hàng",
-        description = "Nhận: username, password, email, phone, name. Trả về message và userId."
+        description = """
+            Tạo tài khoản khách hàng mới.
+
+            ✅ Trường yêu cầu trong body (RegisterDTO):
+            - username (String)
+            - password (String)
+            - email (String)
+            - phone (String)
+            - name (String)
+
+            🔁 Trả về: message và userId nếu thành công.
+        """
     )
     public ResponseEntity<?> registerCustomer(@Valid @RequestBody RegisterDTO request) {
         return ResponseEntity.ok(authService.registerCustomer(request));
     }
-
-    /**
-     * ✅ API Đăng nhập khách hàng
-     * 🔹 POST /api/auth/login
-     * 🔸 Nhận: username, password
-     * 🔸 Trả: userId, name, role, token (có thể null)
-     */
+    
     @PostMapping("/login")
     @Operation(
         summary = "Đăng nhập tài khoản khách hàng",
-        description = "Nhận: username, password. Trả về: userId, name, role, token."
+        description = """
+            Đăng nhập hệ thống với tài khoản khách hàng.
+
+            ✅ Trường yêu cầu trong body (LoginDTO):
+            - username (String)
+            - password (String)
+
+            🔁 Trả về: userId, name, role, token nếu đăng nhập thành công.
+        """
     )
     public ResponseEntity<?> loginCustomer(@Valid @RequestBody LoginDTO request) {
         return ResponseEntity.ok(authService.loginCustomer(request));

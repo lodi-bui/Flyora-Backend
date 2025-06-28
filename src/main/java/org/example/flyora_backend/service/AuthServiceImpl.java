@@ -5,6 +5,7 @@ import java.util.Map;
 import org.example.flyora_backend.DTOs.LoginDTO;
 import org.example.flyora_backend.DTOs.LoginResponseDTO;
 import org.example.flyora_backend.DTOs.RegisterDTO;
+import org.example.flyora_backend.Utils.JwtUtil;
 import org.example.flyora_backend.model.Account;
 import org.example.flyora_backend.model.Admin;
 import org.example.flyora_backend.model.Customer;
@@ -33,6 +34,8 @@ public class AuthServiceImpl implements AuthService {
     private final ShopOwnerRepository shopOwnerRepository;
     private final AdminRepository adminRepository;
     private final SalesStaffRepository salesStaffRepository;
+    private final JwtUtil jwtUtil;
+
 
     @Override
     public Map<String, Object> registerCustomer(RegisterDTO request) {
@@ -108,6 +111,9 @@ public class AuthServiceImpl implements AuthService {
                 response.setLinkedId(staff.getId()); // 🔴 Gán Staff ID
             }
         }
+        String token = jwtUtil.generateToken(account);
+        response.setToken(token);
+
         return response;
     }
 
