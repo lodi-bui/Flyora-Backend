@@ -1,21 +1,13 @@
 package org.example.flyora_backend.service;
 
+import lombok.RequiredArgsConstructor;
 import org.example.flyora_backend.DTOs.AccountDTO;
-import org.example.flyora_backend.model.Account;
-import org.example.flyora_backend.model.Admin;
-import org.example.flyora_backend.model.Customer;
-import org.example.flyora_backend.model.Role;
-import org.example.flyora_backend.model.SalesStaff;
-import org.example.flyora_backend.model.ShopOwner;
-import org.example.flyora_backend.repository.AccountRepository;
-import org.example.flyora_backend.repository.AdminRepository;
-import org.example.flyora_backend.repository.CustomerRepository;
-import org.example.flyora_backend.repository.RoleRepository;
-import org.example.flyora_backend.repository.SalesStaffRepository;
-import org.example.flyora_backend.repository.ShopOwnerRepository;
+import org.example.flyora_backend.model.*;
+import org.example.flyora_backend.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +44,7 @@ public class AccountService {
 
         accountRepository.save(acc);
 
-        // 2. Tạo bản ghi trong bảng liên quan tùy theo Role
+        // 2. Tạo bản ghi cụ thể theo role
         switch (role.getName()) {
             case "Admin" -> {
                 Admin admin = new Admin();
@@ -85,6 +77,11 @@ public class AccountService {
             }
             default -> throw new RuntimeException("Role không hợp lệ để tạo người dùng cụ thể");
         }
+
         return acc;
+    }
+
+    public List<Account> getAllAccounts() {
+        return accountRepository.findAll();
     }
 }
