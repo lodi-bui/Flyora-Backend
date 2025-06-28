@@ -7,14 +7,21 @@ import lombok.*;
 @AllArgsConstructor
 public class AccountDTO {
     private String username;
-    private String password; 
+    private String password;
+    private String email;
     private String phone;
 
     private Boolean isActive;      // true = đã kích hoạt
     private Boolean isApproved;    // true = đã được duyệt
 
-    private Integer roleId;        // dùng khi tạo mới (ví dụ: 1, 2, 3, 4)
-    private String roleName;       // dùng để hiển thị (ví dụ: ADMIN, SHOPOWNER...)
+    private Integer roleId;        // 1 = ADMIN, 2 = SHOP_OWNER, 3 = SALESSTAFF, 4 = CUSTOMER
+    private String roleName;       // (tuỳ chọn, dùng hiển thị hoặc debug)
 
-    private Integer approvedBy;    // tham chiếu tới Admin.id (admin duyệt)
+    private Integer approvedBy;    // ID của Admin duyệt tài khoản
+
+    // Thông tin người dùng tuỳ theo vai trò
+    private String name;           // tên người dùng cho Admin / Customer / ShopOwner / Staff
+
+    private String otherInfo;      // (tuỳ chọn) - chỉ dùng cho ShopOwner
+    private Integer shopOwnerId;   // (tuỳ chọn) - dùng cho SALESSTAFF để biết nhân viên thuộc chủ shop nào
 }
