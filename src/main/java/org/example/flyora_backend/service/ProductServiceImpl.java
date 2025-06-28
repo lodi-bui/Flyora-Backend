@@ -24,7 +24,6 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Page<ProductListDTO> filterProducts(ProductFilterDTO filter) {
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
-
         return productRepository.filterProducts(
                 filter.getName(),
                 filter.getCategoryId(),
@@ -43,17 +42,10 @@ public class ProductServiceImpl implements ProductService {
         String imageUrl = null;
         String categoryName = product.getCategory().getName();
 
-        // Lấy ảnh từ bảng chi tiết tương ứng với loại sản phẩm
         switch (categoryName) {
-            case "FOODS" -> {
-                imageUrl = product.getFoodDetail() != null ? product.getFoodDetail().getImageUrl() : null;
-            }
-            case "TOYS" -> {
-                imageUrl = product.getToyDetail() != null ? product.getToyDetail().getImageUrl() : null;
-            }
-            case "FURNITURE" -> {
-                imageUrl = product.getFurnitureDetail() != null ? product.getFurnitureDetail().getImageUrl() : null;
-            }
+            case "FOODS" -> imageUrl = product.getFoodDetail() != null ? product.getFoodDetail().getImageUrl() : null;
+            case "TOYS" -> imageUrl = product.getToyDetail() != null ? product.getToyDetail().getImageUrl() : null;
+            case "FURNITURE" -> imageUrl = product.getFurnitureDetail() != null ? product.getFurnitureDetail().getImageUrl() : null;
         }
 
         return new ProductDetailDTO(
@@ -77,4 +69,23 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductListDTO> searchByName(String name) {
         return productRepository.searchByName(name);
     }
-}
+
+    @Override
+    public List<ProductListDTO> getProductByStatus() {
+        return productRepository.findAllByStatusTrue();
+    }
+
+    @Override
+    public Product addProduct(Product product) {
+        return productRepository.save(product);
+    }
+
+    @Override
+    public boolean deleteProductById(int id) {
+        if (productRepository.existsById(id)) {
+            productRepository.deleteById(id);
+            return true;
+        }
+        return false;
+    }
+}    
