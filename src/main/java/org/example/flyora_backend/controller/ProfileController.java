@@ -4,8 +4,10 @@ import org.example.flyora_backend.DTOs.ChangePasswordDTO;
 import org.example.flyora_backend.DTOs.ProfileDTO;
 import org.example.flyora_backend.DTOs.UpdateProfileDTO;
 import org.example.flyora_backend.model.Account;
+import org.example.flyora_backend.service.AccessLogService;
 import org.example.flyora_backend.service.ProfileService;
 import org.example.flyora_backend.utils.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,6 +23,9 @@ public class ProfileController {
     private final JwtUtil jwtUtil;
     private final ProfileService profileService;
 
+    @Autowired
+    private AccessLogService accessLogService;
+
     @GetMapping
     @Operation(
         summary = "Xem hồ sơ người dùng",
@@ -34,6 +39,7 @@ public class ProfileController {
     )
     public ResponseEntity<ProfileDTO> getProfile(@RequestHeader("Authorization") String token) {
         Account account = jwtUtil.getAccountFromToken(token);
+        accessLogService.logAction(account.getId(), "Xem hồ sơ người dùng");
         return ResponseEntity.ok(profileService.getProfile(account));
     }
 
@@ -53,6 +59,7 @@ public class ProfileController {
                                               @RequestBody UpdateProfileDTO request) {
         Account account = jwtUtil.getAccountFromToken(token);
         profileService.updateProfile(account, request);
+        accessLogService.logAction(account.getId(), "Cập nhật hồ sơ người dùng");
         return ResponseEntity.ok().build();
     }
 
@@ -72,8 +79,10 @@ public class ProfileController {
             @RequestHeader("Authorization") String token,
             @RequestBody ChangePasswordDTO request) {
 
+
         Account account = jwtUtil.getAccountFromToken(token);
         profileService.changePassword(account, request);
+        accessLogService.logAction(account.getId(), "Thay đổi mật khẩu");
         return ResponseEntity.ok().build();
     }
 

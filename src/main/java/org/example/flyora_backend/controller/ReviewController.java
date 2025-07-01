@@ -2,7 +2,9 @@ package org.example.flyora_backend.controller;
 
 import java.util.Map;
 import org.example.flyora_backend.DTOs.ProductReviewDTO;
+import org.example.flyora_backend.service.AccessLogService;
 import org.example.flyora_backend.service.ReviewService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,12 +20,16 @@ public class ReviewController {
 
     private final ReviewService reviewService;
 
+    @Autowired
+    private AccessLogService accessLogService;
+
     @PostMapping("/submit")
     @Operation(
         summary = "Gửi đánh giá sản phẩm",
         description = "Khách hàng gửi đánh giá và bình luận cho sản phẩm đã mua"
     )
     public ResponseEntity<Map<String, Object>> submitReview(@Valid @RequestBody ProductReviewDTO request) {
+        accessLogService.logAction(request.getCustomerId(), "Gửi đánh giá sản phẩm");
         return ResponseEntity.ok(reviewService.submitReview(request));
     }
 }
