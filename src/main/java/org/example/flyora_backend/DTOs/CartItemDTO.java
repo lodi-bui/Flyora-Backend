@@ -1,5 +1,7 @@
 package org.example.flyora_backend.DTOs;
 
+import java.math.BigDecimal;
+
 import lombok.*;
 
 @Data
@@ -11,4 +13,5 @@ public class CartItemDTO {
     private String name;
     private String imageUrl;
     private Integer quantity;
+    private BigDecimal price;
 }

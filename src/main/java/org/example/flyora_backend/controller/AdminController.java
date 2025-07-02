@@ -7,12 +7,14 @@
 
     import org.example.flyora_backend.DTOs.AccessLogDTO;
     import org.example.flyora_backend.DTOs.AccountDTO;
-    import org.example.flyora_backend.model.Account;
+import org.example.flyora_backend.DTOs.CreateNewsDTO;
+import org.example.flyora_backend.model.Account;
     import org.example.flyora_backend.repository.AccessLogRepository;
     import org.example.flyora_backend.repository.AccountRepository;
 import org.example.flyora_backend.service.AccessLogService;
 import org.example.flyora_backend.service.AccountService;
-    import org.springframework.beans.factory.annotation.Autowired;
+import org.example.flyora_backend.service.InfoService;
+import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.http.ResponseEntity;
     import org.springframework.web.bind.annotation.*;
     
@@ -35,6 +37,9 @@ import org.example.flyora_backend.service.AccountService;
 
         @Autowired
         private AccessLogService accessLogService;
+
+        @Autowired
+        private InfoService infoService;
 
 
         private void verifyAdmin(Integer requestAccountId) {
@@ -197,4 +202,26 @@ import org.example.flyora_backend.service.AccountService;
 
             return ResponseEntity.ok(logs);
         }
+
+        @PostMapping("/news")
+        @Operation(
+            summary = "Tạo bản tin mới",
+            description = """
+                Tạo bài viết mới (NewsArticle) từ URL và tiêu đề (chỉ dành cho Admin).
+
+                📌 Trường yêu cầu trong body:
+                - title (String): Tiêu đề
+                - url (String): Đường dẫn bài viết (có thể crawl nội dung nếu cần)
+
+                📌 `requesterId`: ID tài khoản gọi request để xác minh quyền Admin.
+
+                🔁 Trả về: Bản tin vừa tạo.
+            """
+        )
+        public ResponseEntity<?> createNews(@RequestBody CreateNewsDTO dto, @RequestParam Integer requesterId) {
+            verifyAdmin(requesterId);
+            accessLogService.logAction(requesterId, "Tạo bản tin: " + dto.getTitle());
+            return ResponseEntity.ok(infoService.createNewsArticle(dto, requesterId));
+        }
+
     }
