@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/cart")
-@Tag(name = "Cart", description = "API cho thao tác giỏ hàng (không lưu vào database)")
+@Tag(name = "Cart Services", description = "API cho thao tác giỏ hàng (không lưu vào database)")
 public class CartController {
 
     @Autowired
