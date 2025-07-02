@@ -44,6 +44,7 @@ public class CartService {
                     .name(product.getName())
                     .imageUrl(imageUrl)
                     .quantity(request.getQuantity())
+                    .price(product.getPrice())
                     .build());
         }
 
@@ -59,6 +60,7 @@ public class CartService {
                 .name(product.getName())
                 .imageUrl(imageUrl)
                 .quantity(quantity)
+                .price(product.getPrice())
                 .build();
     }
 
