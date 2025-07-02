@@ -1,5 +1,6 @@
 package org.example.flyora_backend.service;
 
+import java.util.List;
 import java.util.Map;
 import org.example.flyora_backend.DTOs.ProductReviewDTO;
 import org.example.flyora_backend.model.Customer;
@@ -34,5 +35,17 @@ public class ReviewServiceImpl implements ReviewService {
 
         return Map.of("message", "Đánh giá sản phẩm thành công");
     }
+
+    @Override
+    public List<ProductReviewDTO> getReviewsByProduct(Integer productId) {
+        List<ProductReview> reviews = reviewRepository.findByProductId(productId);
+        return reviews.stream().map(r -> new ProductReviewDTO(
+            r.getCustomer().getId(),
+            r.getProduct().getId(),
+            r.getRating(),
+            r.getReview()
+        )).toList();
+    }
+
 
 }
