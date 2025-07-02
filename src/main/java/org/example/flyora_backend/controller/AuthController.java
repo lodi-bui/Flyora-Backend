@@ -52,7 +52,7 @@ public class AuthController {
             🔁 Trả về: userId, name, role, token nếu đăng nhập thành công.
         """
     )
-    public ResponseEntity<?> loginCustomer(@Valid @RequestBody LoginDTO request) {
+    public ResponseEntity<?> loginCustomer(@Valid @RequestBody LoginDTO request) {        
         return ResponseEntity.ok(authService.loginCustomer(request));
     }
 }

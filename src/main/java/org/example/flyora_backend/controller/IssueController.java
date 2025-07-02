@@ -1,7 +1,9 @@
 package org.example.flyora_backend.controller;
 
 import org.example.flyora_backend.DTOs.IssueReportDTO;
+import org.example.flyora_backend.service.AccessLogService;
 import org.example.flyora_backend.service.IssueService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,9 @@ public class IssueController {
 
     private final IssueService issueService;
 
+    @Autowired
+    private AccessLogService accessLogService;
+
     /**
      * ✅ API gửi phản hồi lỗi đơn hàng
      * 🔹 POST /api/v1/issues
@@ -29,6 +34,7 @@ public class IssueController {
         description = "Gửi phản hồi liên quan đến đơn hàng từ khách hàng. Trả về message."
     )
     public ResponseEntity<?> submitIssue(@RequestBody IssueReportDTO dto) {
+        accessLogService.logAction(dto.getCustomerId(), "Gửi phản hồi đơn hàng #" + dto.getOrderId());
         return ResponseEntity.ok(issueService.submitIssue(dto));
     }
 }

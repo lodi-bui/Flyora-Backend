@@ -18,6 +18,7 @@ import org.example.flyora_backend.repository.RoleRepository;
 import org.example.flyora_backend.repository.SalesStaffRepository;
 import org.example.flyora_backend.repository.ShopOwnerRepository;
 import org.example.flyora_backend.utils.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -35,7 +36,9 @@ public class AuthServiceImpl implements AuthService {
     private final AdminRepository adminRepository;
     private final SalesStaffRepository salesStaffRepository;
     private final JwtUtil jwtUtil;
-
+    
+    @Autowired
+    private AccessLogService accessLogService;
 
     @Override
     public Map<String, Object> registerCustomer(RegisterDTO request) {
@@ -113,7 +116,7 @@ public class AuthServiceImpl implements AuthService {
         }
         String token = jwtUtil.generateToken(account);
         response.setToken(token);
-
+        accessLogService.logAction(account.getId(), "Đăng nhập thành công");
         return response;
     }
 

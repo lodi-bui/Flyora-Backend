@@ -81,7 +81,53 @@ public class AccountService {
         return acc;
     }
 
+    @Transactional
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
     }
+
+    @Transactional
+    public Account updateAccount(Integer id, AccountDTO dto) {
+        Account acc = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+
+        acc.setUsername(dto.getUsername());
+        acc.setPassword(dto.getPassword());
+        acc.setPhone(dto.getPhone());
+        acc.setEmail(dto.getEmail());
+
+        if (dto.getRoleId() != null) {
+            Role role = roleRepository.findById(dto.getRoleId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy role"));
+            acc.setRole(role);
+        }
+
+        if (dto.getApprovedBy() != null) {
+            Admin admin = adminRepository.findById(dto.getApprovedBy())
+                    .orElseThrow(() -> new RuntimeException("Admin duyệt không tồn tại"));
+            acc.setApprovedBy(admin);
+        }
+
+        acc.setIsActive(dto.getIsActive());
+        acc.setIsApproved(dto.getIsApproved());
+
+        return accountRepository.save(acc);
+    }
+
+    @Transactional
+    public void deleteAccount(Integer id) {
+        if (!accountRepository.existsById(id)) {
+            throw new RuntimeException("Tài khoản không tồn tại");
+        }
+        accountRepository.deleteById(id);
+    }
+
+    @Transactional
+    public Account setActiveStatus(Integer id, boolean isActive) {
+        Account acc = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+        acc.setIsActive(isActive);
+        return accountRepository.save(acc);
+    }
+
 }
