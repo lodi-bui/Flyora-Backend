@@ -25,19 +25,19 @@ public class InfoController {
     @Operation(
         summary = "Lấy danh sách tin tức đã được đăng",
         description = """
-            ✅ Trả về danh sách các bài viết (`NewsArticle`) đã được đánh dấu là `isPublished = true`.
+            ✅ Trả về danh sách các bài viết (`NewsArticle`) đã được tạo.
 
             Mỗi bài viết gồm:
             - id (Integer)
             - title (String)
-            - content (Text)
-            - imageUrl (String)
-            - publishedAt (Datetime)
+            - url (String)
+            - createdAt (Datetime)
         """
     )
     public ResponseEntity<List<NewsArticle>> getNews() {
         return ResponseEntity.ok(infoService.getPublishedNews());
     }
+
 
     @GetMapping("/faqs")
     @Operation(
