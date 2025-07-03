@@ -221,7 +221,7 @@ import org.springframework.beans.factory.annotation.Autowired;
         public ResponseEntity<?> createNews(@RequestBody CreateNewsDTO dto, @RequestParam Integer requesterId) {
             verifyAdmin(requesterId);
             accessLogService.logAction(requesterId, "Tạo bản tin: " + dto.getTitle());
-            return ResponseEntity.ok(infoService.createNewsArticle(dto, requesterId));
+            return ResponseEntity.ok(infoService.createNewsArticle(dto));
         }
 
     }
