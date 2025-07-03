@@ -17,6 +17,7 @@ import org.example.flyora_backend.repository.CustomerRepository;
 import org.example.flyora_backend.repository.RoleRepository;
 import org.example.flyora_backend.repository.SalesStaffRepository;
 import org.example.flyora_backend.repository.ShopOwnerRepository;
+import org.example.flyora_backend.utils.IdGeneratorUtil;
 import org.example.flyora_backend.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,9 +37,12 @@ public class AuthServiceImpl implements AuthService {
     private final AdminRepository adminRepository;
     private final SalesStaffRepository salesStaffRepository;
     private final JwtUtil jwtUtil;
-    
+
     @Autowired
     private AccessLogService accessLogService;
+
+    @Autowired
+    private IdGeneratorUtil idGeneratorUtil;
 
     @Override
     public Map<String, Object> registerCustomer(RegisterDTO request) {
@@ -46,13 +50,13 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Tên đăng nhập đã tồn tại");
         }
 
-        Role customerRole = roleRepository.findByName("CUSTOMER")
+        Role customerRole = roleRepository.findByName("Customer")
                 .orElseThrow(() -> new RuntimeException("Role CUSTOMER không tồn tại"));
 
-        // 👉 Lưu mật khẩu thẳng (plain text)
         Account account = new Account();
+        account.setId(idGeneratorUtil.generateAccountId()); // 👈 Gán ID thủ công
         account.setUsername(request.getUsername());
-        account.setPassword(request.getPassword()); // KHÔNG MÃ HÓA
+        account.setPassword(request.getPassword());
         account.setEmail(request.getEmail());
         account.setPhone(request.getPhone());
         account.setRole(customerRole);
@@ -61,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
         accountRepository.save(account);
 
         Customer customer = new Customer();
+        customer.setId(idGeneratorUtil.generateCustomerId()); // 👈 Gán ID thủ công
         customer.setName(request.getName());
         customer.setEmail(request.getEmail());
         customer.setAccount(account);
@@ -68,6 +73,8 @@ public class AuthServiceImpl implements AuthService {
 
         return Map.of("message", "Đăng ký thành công", "userId", customer.getId());
     }
+
+
 
 
     @Override
@@ -87,37 +94,36 @@ public class AuthServiceImpl implements AuthService {
         response.setName(account.getUsername());
         response.setRole(roleName);
 
-        // Lấy tên người dùng từ bảng tương ứng
         switch (roleName) {
             case "Customer" -> {
                 Customer c = customerRepository.findByAccountId(account.getId())
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy customer"));
                 response.setName(c.getName());
-                response.setLinkedId(c.getId()); // 🔴 Gán Customer ID
+                response.setLinkedId(c.getId());
             }
             case "ShopOwner" -> {
                 ShopOwner s = shopOwnerRepository.findByAccountId(account.getId())
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy shop owner"));
                 response.setName(s.getName());
-                response.setLinkedId(s.getId()); // 🔴 Gán ShopOwner ID
+                response.setLinkedId(s.getId());
             }
             case "Admin" -> {
                 Admin a = adminRepository.findByAccountId(account.getId())
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy admin"));
                 response.setName(a.getName());
-                response.setLinkedId(a.getId()); // 🔴 Gán Admin ID
+                response.setLinkedId(a.getId());
             }
             case "SalesStaff" -> {
                 SalesStaff staff = salesStaffRepository.findByAccountId(account.getId())
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy staff"));
                 response.setName(staff.getName());
-                response.setLinkedId(staff.getId()); // 🔴 Gán Staff ID
+                response.setLinkedId(staff.getId());
             }
         }
+
         String token = jwtUtil.generateToken(account);
         response.setToken(token);
         accessLogService.logAction(account.getId(), "Đăng nhập thành công");
         return response;
     }
-
 }
