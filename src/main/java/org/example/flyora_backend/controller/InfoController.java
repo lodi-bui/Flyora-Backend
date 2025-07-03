@@ -2,8 +2,8 @@ package org.example.flyora_backend.controller;
 
 import java.util.List;
 
+import org.example.flyora_backend.DTOs.NewsArticleResponseDTO;
 import org.example.flyora_backend.model.Faq;
-import org.example.flyora_backend.model.NewsArticle;
 import org.example.flyora_backend.model.Policy;
 import org.example.flyora_backend.service.InfoService;
 import org.springframework.http.ResponseEntity;
@@ -23,20 +23,22 @@ public class InfoController {
 
     @GetMapping("/news")
     @Operation(
-        summary = "Lấy danh sách tin tức đã được đăng",
+        summary = "Lấy danh sách tin tức có kèm ảnh preview",
         description = """
-            ✅ Trả về danh sách các bài viết (`NewsArticle`) đã được tạo.
+            ✅ Trả về danh sách các bài viết (`NewsArticleResponseDTO`) có thêm ảnh đại diện.
 
             Mỗi bài viết gồm:
-            - id (Integer)
-            - title (String)
-            - url (String)
-            - createdAt (Datetime)
+            - id
+            - title
+            - url
+            - createdAt
+            - imageUrl ✅
         """
     )
-    public ResponseEntity<List<NewsArticle>> getNews() {
-        return ResponseEntity.ok(infoService.getPublishedNews());
+    public ResponseEntity<List<NewsArticleResponseDTO>> getNewsWithImage() {
+        return ResponseEntity.ok(infoService.getPublishedNewsWithImage());
     }
+
 
 
     @GetMapping("/faqs")
