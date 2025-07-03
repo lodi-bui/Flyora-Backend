@@ -7,6 +7,7 @@ import org.example.flyora_backend.model.Customer;
 import org.example.flyora_backend.model.Product;
 import org.example.flyora_backend.model.ProductReview;
 import org.example.flyora_backend.repository.ProductReviewRepository;
+import org.example.flyora_backend.utils.IdGeneratorUtil;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
@@ -16,12 +17,14 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ProductReviewRepository reviewRepository;
 
+    private final IdGeneratorUtil idGeneratorUtil;
+
     @Override
     public Map<String, Object> submitReview(ProductReviewDTO dto) {
         ProductReview review = new ProductReview();
 
         Customer customer = new Customer();
-        customer.setId(dto.getCustomerId());
+        review.setId(idGeneratorUtil.generateProductReviewId());
         review.setCustomer(customer);
 
         Product product = new Product();
