@@ -2,6 +2,7 @@ package org.example.flyora_backend.service;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.example.flyora_backend.DTOs.CreateOrderDTO;
@@ -16,74 +17,87 @@ import org.example.flyora_backend.repository.OrderItemRepository;
 import org.example.flyora_backend.repository.OrderRepository;
 import org.example.flyora_backend.repository.PaymentRepository;
 import org.example.flyora_backend.repository.ProductRepository;
+import org.example.flyora_backend.utils.IdGeneratorUtil;
 import org.springframework.stereotype.Service;
 import org.example.flyora_backend.model.Customer;
 
 
 import lombok.RequiredArgsConstructor;
 
-@Service
 @RequiredArgsConstructor
+@Service
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
+    private final IdGeneratorUtil idGeneratorUtil;
 
     @Override
     public Map<String, Object> createOrder(CreateOrderDTO dto) {
+        Integer newId = idGeneratorUtil.generateOrderId();
+        if (orderRepository.existsById(newId)) {
+            throw new IllegalStateException("Generated Order ID already exists: " + newId);
+        }
+
         Order order = new Order();
+        order.setId(newId);
 
         Customer customer = new Customer();
         customer.setId(dto.getCustomerId());
         order.setCustomer(customer);
-
-        order.setStatus("PENDING"); // hoặc "WAITING", "UNPAID", tùy cách bạn định nghĩa
+        order.setStatus("PENDING");
         order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
-        order = orderRepository.save(order);
-
+        List<OrderItem> orderItems = new ArrayList<>();
         for (var item : dto.getItems()) {
             Product product = productRepository.findById(item.getProductId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                    .orElseThrow(() -> new RuntimeException("Product not found"));
 
             OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
+            orderItem.setId(idGeneratorUtil.generateOrderItemId());
             orderItem.setProduct(product);
             orderItem.setQuantity(item.getQuantity());
             orderItem.setPrice(product.getPrice());
-            orderItemRepository.save(orderItem);
+
+            orderItems.add(orderItem);
         }
 
-        return Map.of("orderId", order.getId(), "status", order.getStatus());
+        // Save Order trước
+        Order savedOrder = orderRepository.save(order);
+
+        // Gán lại order đã attach vào từng orderItem
+        for (OrderItem item : orderItems) {
+            item.setOrder(savedOrder);
+        }
+
+        orderItemRepository.saveAll(orderItems);
+
+        return Map.of("orderId", savedOrder.getId(), "status", savedOrder.getStatus());
     }
+
+
 
     @Override
     public Map<String, Object> createPayment(CreatePaymentDTO dto) {
         Payment payment = new Payment();
+        payment.setId(idGeneratorUtil.generatePaymentId());
 
-        // Gán Order (chỉ cần ID)
         Order order = new Order();
         order.setId(dto.getOrderId());
         payment.setOrder(order);
 
-        // Gán Customer
         Customer customer = new Customer();
         customer.setId(dto.getCustomerId());
         payment.setCustomer(customer);
 
-        // Trạng thái thanh toán + thời điểm
         payment.setStatus("PAID");
         payment.setPaidAt(Instant.now());
 
-        // Lưu vào DB
         payment = paymentRepository.save(payment);
 
-        return Map.of(
-            "paymentId", payment.getId(),
-            "status", payment.getStatus()
-        );
+        return Map.of("paymentId", payment.getId(), "status", payment.getStatus());
     }
 
     @Override
