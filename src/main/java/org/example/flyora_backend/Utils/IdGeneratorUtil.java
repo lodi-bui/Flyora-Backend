@@ -1,11 +1,6 @@
 package org.example.flyora_backend.utils;
 
-import org.example.flyora_backend.repository.AccountRepository;
-import org.example.flyora_backend.repository.CustomerRepository;
-import org.example.flyora_backend.repository.OrderItemRepository;
-import org.example.flyora_backend.repository.OrderRepository;
-import org.example.flyora_backend.repository.PaymentRepository;
-import org.example.flyora_backend.repository.ProductReviewRepository;
+import org.example.flyora_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,21 +9,28 @@ public class IdGeneratorUtil {
 
     @Autowired
     private AccountRepository accountRepository;
-
     @Autowired
     private CustomerRepository customerRepository;
-
     @Autowired
     private ProductReviewRepository productReviewRepository;
-
-    @Autowired 
+    @Autowired
     private OrderRepository orderRepository;
-
-    @Autowired 
+    @Autowired
     private OrderItemRepository orderItemRepository;
-    
-    @Autowired 
+    @Autowired
     private PaymentRepository paymentRepository;
+    @Autowired
+    private ProductRepository productRepository;
+    @Autowired
+    private FoodDetailRepository foodDetailRepository;
+    @Autowired
+    private ToyDetailRepository toyDetailRepository;
+    @Autowired
+    private FurnitureDetailRepository furnitureDetailRepository;
+
+    IdGeneratorUtil(FoodDetailRepository foodDetailRepository) {
+        this.foodDetailRepository = foodDetailRepository;
+    }
 
     public Integer generateProductReviewId() {
         return productReviewRepository.findMaxId().orElse(0) + 1;
@@ -52,5 +54,21 @@ public class IdGeneratorUtil {
 
     public Integer generatePaymentId() {
         return paymentRepository.findMaxId().orElse(0) + 1;
+    }
+
+    public Integer generateToyDetailId() {
+        return toyDetailRepository.findMaxId().orElse(0) + 1;
+    }
+
+    public Integer generateFoodDetailId() {
+        return foodDetailRepository.findMaxId().orElse(0) + 1;
+    }
+
+    public Integer generateFurnitureDetailId() {
+        return furnitureDetailRepository.findMaxId().orElse(0) + 1;
+    }
+
+    public Integer generateProductId() {
+        return productRepository.findMaxId().orElse(0) + 1;
     }
 }

@@ -12,7 +12,6 @@ import java.math.BigDecimal;
 @Table(name = "Product")
 public class Product {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     private String description;
@@ -31,7 +30,7 @@ public class Product {
     private ProductCategory category;
 
     @ManyToOne
-    @JoinColumn(name = "bird_type_id") 
+    @JoinColumn(name = "bird_type_id")
     private BirdType birdType;
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
@@ -42,6 +41,10 @@ public class Product {
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL)
     private FurnitureDetail furnitureDetail;
+
+    @ManyToOne
+    @JoinColumn(name = "shop_owner_id")
+    private ShopOwner shopOwner;
 
     @Column(nullable = false)
     @Builder.Default

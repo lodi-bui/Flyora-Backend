@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtUtil {
 
+    
     @Value("${app.jwt.secret}")
     private String secret;
 

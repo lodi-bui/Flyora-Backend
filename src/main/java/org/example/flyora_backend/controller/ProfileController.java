@@ -43,6 +43,7 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.getProfile(account));
     }
 
+    
     @PutMapping
     @Operation(
         summary = "Cập nhật hồ sơ người dùng",
