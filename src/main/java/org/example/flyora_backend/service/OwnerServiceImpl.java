@@ -3,10 +3,23 @@ package org.example.flyora_backend.service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.example.flyora_backend.DTOs.CreateProductDTO;
 import org.example.flyora_backend.DTOs.TopProductDTO;
+import org.example.flyora_backend.model.BirdType;
+import org.example.flyora_backend.model.FoodDetail;
+import org.example.flyora_backend.model.FurnitureDetail;
+import org.example.flyora_backend.model.Product;
+import org.example.flyora_backend.model.ProductCategory;
 import org.example.flyora_backend.model.ShopOwner;
+import org.example.flyora_backend.model.ToyDetail;
+import org.example.flyora_backend.repository.BirdTypeRepository;
+import org.example.flyora_backend.repository.FoodDetailRepository;
+import org.example.flyora_backend.repository.FurnitureDetailRepository;
+import org.example.flyora_backend.repository.ProductCategoryRepository;
 import org.example.flyora_backend.repository.ProductRepository;
 import org.example.flyora_backend.repository.ShopOwnerRepository;
+import org.example.flyora_backend.repository.ToyDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +34,21 @@ public class OwnerServiceImpl implements OwnerService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ProductCategoryRepository categoryRepository;
+
+    @Autowired
+    private BirdTypeRepository birdTypeRepository;
+
+    @Autowired
+    private FoodDetailRepository foodDetailRepository;
+
+    @Autowired
+    private ToyDetailRepository toyDetailRepository;
+
+    @Autowired
+    private FurnitureDetailRepository furnitureDetailRepository;
+
     @Override
     public List<TopProductDTO> getTopSellingProducts(int accountId) {
         Optional<ShopOwner> shopOwnerOpt = shopOwnerRepository.findByAccountId(accountId);
@@ -29,6 +57,70 @@ public class OwnerServiceImpl implements OwnerService {
 
         int shopOwnerId = shopOwnerOpt.get().getId();
         return productRepository.findTopSellingProductsByShopOwner(shopOwnerId);
+    }
+
+    @Override
+    public Product createProduct(CreateProductDTO dto, Integer accountId) {      
+        ProductCategory category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Loại sản phẩm không hợp lệ"));
+
+        BirdType birdType = birdTypeRepository.findById(dto.getBirdTypeId())
+                .orElseThrow(() -> new RuntimeException("Loại chim không hợp lệ"));
+
+        Product product = Product.builder()
+                .name(dto.getName())
+                .description(dto.getDescription())
+                .price(dto.getPrice())
+                .stock(dto.getStock())
+                .category(category)
+                .birdType(birdType)
+                .salesCount(0)
+                .status(true)
+                .build();
+
+        productRepository.save(product); // Tạm thời lưu để có ID
+
+        // Tạo chi tiết tương ứng
+        switch (category.getName().toUpperCase()) {
+            case "FOODS" -> {
+                FoodDetail detail = new FoodDetail();
+                detail.setId(product.getId());
+                detail.setProduct(product);
+                detail.setMaterial(dto.getMaterial());
+                detail.setOrigin(dto.getOrigin());
+                detail.setUsageTarget(dto.getUsageTarget());
+                detail.setWeight(dto.getWeight());
+                detail.setImageUrl(dto.getImageUrl());
+                foodDetailRepository.save(detail);
+            }
+            case "TOYS" -> {
+                ToyDetail detail = new ToyDetail();
+                detail.setId(product.getId());
+                detail.setProduct(product);
+                detail.setMaterial(dto.getMaterial());
+                detail.setOrigin(dto.getOrigin());
+                detail.setColor(dto.getColor());
+                detail.setDimensions(dto.getDimensions());
+                detail.setWeight(dto.getWeight());
+                detail.setImageUrl(dto.getImageUrl());
+                toyDetailRepository.save(detail);
+            }
+            case "FURNITURE" -> {
+                FurnitureDetail detail = new FurnitureDetail();
+                detail.setId(product.getId());
+                detail.setProduct(product);
+                detail.setMaterial(dto.getMaterial());
+                detail.setOrigin(dto.getOrigin());
+                detail.setColor(dto.getColor());
+                detail.setDimensions(dto.getDimensions());
+                detail.setWeight(dto.getWeight());
+                detail.setImageUrl(dto.getImageUrl());
+                furnitureDetailRepository.save(detail);
+            }
+            default -> throw new RuntimeException("Loại sản phẩm không hỗ trợ");
+        }
+
+        return product;
     }
 
 }
