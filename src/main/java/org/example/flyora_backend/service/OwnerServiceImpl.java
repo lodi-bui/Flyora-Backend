@@ -20,6 +20,7 @@ import org.example.flyora_backend.repository.ProductCategoryRepository;
 import org.example.flyora_backend.repository.ProductRepository;
 import org.example.flyora_backend.repository.ShopOwnerRepository;
 import org.example.flyora_backend.repository.ToyDetailRepository;
+import org.example.flyora_backend.utils.IdGeneratorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,33 +30,29 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class OwnerServiceImpl implements OwnerService {
+
     @Autowired
     private ShopOwnerRepository shopOwnerRepository;
-
     @Autowired
     private ProductRepository productRepository;
-
     @Autowired
     private ProductCategoryRepository categoryRepository;
-
     @Autowired
     private BirdTypeRepository birdTypeRepository;
-
     @Autowired
     private FoodDetailRepository foodDetailRepository;
-
     @Autowired
     private ToyDetailRepository toyDetailRepository;
-
     @Autowired
     private FurnitureDetailRepository furnitureDetailRepository;
+    @Autowired
+    private IdGeneratorUtil idGeneratorUtil;
 
     @Override
     public List<TopProductDTO> getTopSellingProducts(int accountId) {
         Optional<ShopOwner> shopOwnerOpt = shopOwnerRepository.findByAccountId(accountId);
         if (shopOwnerOpt.isEmpty())
             return Collections.emptyList();
-
         int shopOwnerId = shopOwnerOpt.get().getId();
         return productRepository.findTopSellingProductsByShopOwner(shopOwnerId);
     }
@@ -68,7 +65,12 @@ public class OwnerServiceImpl implements OwnerService {
         BirdType birdType = birdTypeRepository.findById(dto.getBirdTypeId())
                 .orElseThrow(() -> new RuntimeException("Loại chim không hợp lệ"));
 
+        ShopOwner shopOwner = shopOwnerRepository.findByAccountId(accountId)
+            .orElseThrow(() -> new RuntimeException("ShopOwner không tồn tại"));
+        Integer newProductId = idGeneratorUtil.generateProductId();
+
         Product product = Product.builder()
+                .id(newProductId)
                 .name(dto.getName())
                 .description(dto.getDescription())
                 .price(dto.getPrice())
@@ -77,15 +79,15 @@ public class OwnerServiceImpl implements OwnerService {
                 .birdType(birdType)
                 .salesCount(0)
                 .status(true)
+                .shopOwner(shopOwner)
                 .build();
 
-        productRepository.save(product); // Tạm thời lưu để có ID
+        productRepository.save(product);
 
-        // Tạo chi tiết tương ứng
         switch (category.getName().toUpperCase()) {
             case "FOODS" -> {
                 FoodDetail detail = new FoodDetail();
-                detail.setId(product.getId());
+                detail.setId(idGeneratorUtil.generateFoodDetailId());
                 detail.setProduct(product);
                 detail.setMaterial(dto.getMaterial());
                 detail.setOrigin(dto.getOrigin());
@@ -96,7 +98,7 @@ public class OwnerServiceImpl implements OwnerService {
             }
             case "TOYS" -> {
                 ToyDetail detail = new ToyDetail();
-                detail.setId(product.getId());
+                detail.setId(idGeneratorUtil.generateToyDetailId());
                 detail.setProduct(product);
                 detail.setMaterial(dto.getMaterial());
                 detail.setOrigin(dto.getOrigin());
@@ -108,7 +110,7 @@ public class OwnerServiceImpl implements OwnerService {
             }
             case "FURNITURE" -> {
                 FurnitureDetail detail = new FurnitureDetail();
-                detail.setId(product.getId());
+                detail.setId(idGeneratorUtil.generateFurnitureDetailId());
                 detail.setProduct(product);
                 detail.setMaterial(dto.getMaterial());
                 detail.setOrigin(dto.getOrigin());
@@ -128,7 +130,6 @@ public class OwnerServiceImpl implements OwnerService {
     public List<OwnerProductListDTO> getAllProductsByOwner(int accountId) {
         ShopOwner owner = shopOwnerRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new RuntimeException("ShopOwner không tồn tại"));
-
         return productRepository.findAllByShopOwnerIdOrderByIdAsc(owner.getId());
     }
 
@@ -136,9 +137,6 @@ public class OwnerServiceImpl implements OwnerService {
     public Product updateProduct(Integer productId, CreateProductDTO dto, Integer accountId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
-
-        // Kiểm tra quyền sở hữu sản phẩm nếu cần
-        // Có thể thêm điều kiện kiểm tra nếu role là staff phải thuộc cùng shopOwner
 
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
@@ -153,11 +151,9 @@ public class OwnerServiceImpl implements OwnerService {
         product.setCategory(category);
         product.setBirdType(birdType);
 
-        // Cập nhật chi tiết theo loại
         switch (category.getName().toUpperCase()) {
             case "FOODS" -> {
-                FoodDetail detail = foodDetailRepository.findById(productId)
-                        .orElse(new FoodDetail());
+                FoodDetail detail = foodDetailRepository.findById(productId).orElse(new FoodDetail());
                 detail.setProduct(product);
                 detail.setMaterial(dto.getMaterial());
                 detail.setOrigin(dto.getOrigin());
@@ -167,8 +163,7 @@ public class OwnerServiceImpl implements OwnerService {
                 foodDetailRepository.save(detail);
             }
             case "TOYS" -> {
-                ToyDetail detail = toyDetailRepository.findById(productId)
-                        .orElse(new ToyDetail());
+                ToyDetail detail = toyDetailRepository.findById(productId).orElse(new ToyDetail());
                 detail.setProduct(product);
                 detail.setMaterial(dto.getMaterial());
                 detail.setOrigin(dto.getOrigin());
@@ -179,8 +174,7 @@ public class OwnerServiceImpl implements OwnerService {
                 toyDetailRepository.save(detail);
             }
             case "FURNITURE" -> {
-                FurnitureDetail detail = furnitureDetailRepository.findById(productId)
-                        .orElse(new FurnitureDetail());
+                FurnitureDetail detail = furnitureDetailRepository.findById(productId).orElse(new FurnitureDetail());
                 detail.setProduct(product);
                 detail.setMaterial(dto.getMaterial());
                 detail.setOrigin(dto.getOrigin());
@@ -201,7 +195,6 @@ public class OwnerServiceImpl implements OwnerService {
     public void deleteProduct(Integer productId, Integer accountId) {
         ShopOwner owner = shopOwnerRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new RuntimeException("ShopOwner không tồn tại"));
-
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
 
@@ -211,5 +204,4 @@ public class OwnerServiceImpl implements OwnerService {
 
         productRepository.delete(product);
     }
-
 }
