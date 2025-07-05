@@ -3,8 +3,8 @@ package org.example.flyora_backend.service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import org.example.flyora_backend.DTOs.CreateProductDTO;
+import org.example.flyora_backend.DTOs.OwnerProductListDTO;
 import org.example.flyora_backend.DTOs.TopProductDTO;
 import org.example.flyora_backend.model.BirdType;
 import org.example.flyora_backend.model.FoodDetail;
@@ -22,6 +22,7 @@ import org.example.flyora_backend.repository.ShopOwnerRepository;
 import org.example.flyora_backend.repository.ToyDetailRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -60,7 +61,7 @@ public class OwnerServiceImpl implements OwnerService {
     }
 
     @Override
-    public Product createProduct(CreateProductDTO dto, Integer accountId) {      
+    public Product createProduct(CreateProductDTO dto, Integer accountId) {
         ProductCategory category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Loại sản phẩm không hợp lệ"));
 
@@ -121,6 +122,94 @@ public class OwnerServiceImpl implements OwnerService {
         }
 
         return product;
+    }
+
+    @Override
+    public List<OwnerProductListDTO> getAllProductsByOwner(int accountId) {
+        ShopOwner owner = shopOwnerRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new RuntimeException("ShopOwner không tồn tại"));
+
+        return productRepository.findAllByShopOwnerIdOrderByIdAsc(owner.getId());
+    }
+
+    @Override
+    public Product updateProduct(Integer productId, CreateProductDTO dto, Integer accountId) {
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+
+        // Kiểm tra quyền sở hữu sản phẩm nếu cần
+        // Có thể thêm điều kiện kiểm tra nếu role là staff phải thuộc cùng shopOwner
+
+        product.setName(dto.getName());
+        product.setDescription(dto.getDescription());
+        product.setPrice(dto.getPrice());
+        product.setStock(dto.getStock());
+
+        ProductCategory category = categoryRepository.findById(dto.getCategoryId())
+                .orElseThrow(() -> new RuntimeException("Loại sản phẩm không hợp lệ"));
+        BirdType birdType = birdTypeRepository.findById(dto.getBirdTypeId())
+                .orElseThrow(() -> new RuntimeException("Loại chim không hợp lệ"));
+
+        product.setCategory(category);
+        product.setBirdType(birdType);
+
+        // Cập nhật chi tiết theo loại
+        switch (category.getName().toUpperCase()) {
+            case "FOODS" -> {
+                FoodDetail detail = foodDetailRepository.findById(productId)
+                        .orElse(new FoodDetail());
+                detail.setProduct(product);
+                detail.setMaterial(dto.getMaterial());
+                detail.setOrigin(dto.getOrigin());
+                detail.setUsageTarget(dto.getUsageTarget());
+                detail.setWeight(dto.getWeight());
+                detail.setImageUrl(dto.getImageUrl());
+                foodDetailRepository.save(detail);
+            }
+            case "TOYS" -> {
+                ToyDetail detail = toyDetailRepository.findById(productId)
+                        .orElse(new ToyDetail());
+                detail.setProduct(product);
+                detail.setMaterial(dto.getMaterial());
+                detail.setOrigin(dto.getOrigin());
+                detail.setColor(dto.getColor());
+                detail.setDimensions(dto.getDimensions());
+                detail.setWeight(dto.getWeight());
+                detail.setImageUrl(dto.getImageUrl());
+                toyDetailRepository.save(detail);
+            }
+            case "FURNITURE" -> {
+                FurnitureDetail detail = furnitureDetailRepository.findById(productId)
+                        .orElse(new FurnitureDetail());
+                detail.setProduct(product);
+                detail.setMaterial(dto.getMaterial());
+                detail.setOrigin(dto.getOrigin());
+                detail.setColor(dto.getColor());
+                detail.setDimensions(dto.getDimensions());
+                detail.setWeight(dto.getWeight());
+                detail.setImageUrl(dto.getImageUrl());
+                furnitureDetailRepository.save(detail);
+            }
+            default -> throw new RuntimeException("Loại sản phẩm không hỗ trợ");
+        }
+
+        return productRepository.save(product);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(Integer productId, Integer accountId) {
+        ShopOwner owner = shopOwnerRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new RuntimeException("ShopOwner không tồn tại"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+
+        if (!product.getCategory().getId().equals(owner.getId())) {
+            throw new RuntimeException("Sản phẩm không thuộc sở hữu của bạn");
+        }
+
+        productRepository.delete(product);
     }
 
 }
