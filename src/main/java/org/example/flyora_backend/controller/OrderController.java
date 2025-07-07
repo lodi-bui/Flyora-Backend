@@ -98,7 +98,6 @@ public class OrderController {
         String vnp_ResponseCode = params.get("vnp_ResponseCode");
         String vnp_TxnRef = params.get("vnp_TxnRef");
 
-        // TODO: xác minh chữ ký, xác minh txnRef nếu cần
 
         if ("00".equals(vnp_ResponseCode)) {
             // ✅ Thành công: cập nhật trạng thái đơn hàng + payment

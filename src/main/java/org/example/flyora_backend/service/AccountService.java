@@ -2,12 +2,15 @@ package org.example.flyora_backend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.flyora_backend.DTOs.AccountDTO;
+import org.example.flyora_backend.DTOs.UserDTO;
 import org.example.flyora_backend.model.*;
 import org.example.flyora_backend.repository.*;
+import org.example.flyora_backend.utils.IdGeneratorUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ public class AccountService {
     private final CustomerRepository customerRepository;
     private final ShopOwnerRepository shopOwnerRepository;
     private final SalesStaffRepository salesStaffRepository;
+    private final IdGeneratorUtil idGeneratorUtil;
 
     @Transactional
     public Account createAccount(AccountDTO dto) {
@@ -27,6 +31,7 @@ public class AccountService {
 
         // 1. Tạo tài khoản Account
         Account acc = new Account();
+        acc.setId(idGeneratorUtil.generateAccountId());
         acc.setUsername(dto.getUsername());
         acc.setPassword(dto.getPassword());
         acc.setPhone(dto.getPhone());
@@ -48,14 +53,14 @@ public class AccountService {
         switch (role.getName()) {
             case "Admin" -> {
                 Admin admin = new Admin();
-                admin.setId(acc.getId());
+                admin.setId(idGeneratorUtil.generateAdminId());
                 admin.setName(dto.getName());
                 admin.setAccount(acc);
                 adminRepository.save(admin);
             }
             case "Customer" -> {
                 Customer customer = new Customer();
-                customer.setId(acc.getId());
+                customer.setId(idGeneratorUtil.generateCustomerId());
                 customer.setName(dto.getName());
                 customer.setEmail(acc.getEmail());
                 customer.setAccount(acc);
@@ -63,14 +68,14 @@ public class AccountService {
             }
             case "ShopOwner" -> {
                 ShopOwner owner = new ShopOwner();
-                owner.setId(acc.getId());
+                owner.setId(idGeneratorUtil.generateShopOwnerId());
                 owner.setName(dto.getName());
                 owner.setAccount(acc);
                 shopOwnerRepository.save(owner);
             }
             case "SalesStaff" -> {
                 SalesStaff staff = new SalesStaff();
-                staff.setId(acc.getId());
+                staff.setId(idGeneratorUtil.generateSalesStaffId());
                 staff.setName(dto.getName());
                 staff.setAccount(acc);
                 salesStaffRepository.save(staff);
@@ -82,8 +87,11 @@ public class AccountService {
     }
 
     @Transactional
-    public List<Account> getAllAccounts() {
-        return accountRepository.findAll();
+    public List<UserDTO> getAllAccounts() {
+        return accountRepository.findAll()
+                .stream()
+                .map(UserDTO::new)
+                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -116,9 +124,21 @@ public class AccountService {
 
     @Transactional
     public void deleteAccount(Integer id) {
-        if (!accountRepository.existsById(id)) {
-            throw new RuntimeException("Tài khoản không tồn tại");
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
+
+        // Xóa các entity phụ thuộc (Customer, ShopOwner, SalesStaff, Admin)
+        if (account.getRole().getName().equalsIgnoreCase("Customer")) {
+            customerRepository.deleteByAccountId(id);
+        } else if (account.getRole().getName().equalsIgnoreCase("ShopOwner")) {
+            shopOwnerRepository.deleteByAccountId(id);
+        } else if (account.getRole().getName().equalsIgnoreCase("SalesStaff")) {
+            salesStaffRepository.deleteByAccountId(id);
+        } else if (account.getRole().getName().equalsIgnoreCase("Admin")) {
+            adminRepository.deleteByAccountId(id);
         }
+
+        // Sau khi xóa entity phụ, mới được xóa account
         accountRepository.deleteById(id);
     }
 
