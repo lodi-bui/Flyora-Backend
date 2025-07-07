@@ -27,6 +27,12 @@ public class IdGeneratorUtil {
     private ToyDetailRepository toyDetailRepository;
     @Autowired
     private FurnitureDetailRepository furnitureDetailRepository;
+    @Autowired
+    private AdminRepository adminRepository;
+    @Autowired
+    private ShopOwnerRepository shopOwnerRepository;
+    @Autowired
+    private SalesStaffRepository salesStaffRepository;
 
     IdGeneratorUtil(FoodDetailRepository foodDetailRepository) {
         this.foodDetailRepository = foodDetailRepository;
@@ -70,5 +76,17 @@ public class IdGeneratorUtil {
 
     public Integer generateProductId() {
         return productRepository.findMaxId().orElse(0) + 1;
+    }
+
+    public Integer generateAdminId() {
+        return adminRepository.findMaxId().orElse(0) + 1;
+    }
+
+    public Integer generateShopOwnerId() {
+        return shopOwnerRepository.findMaxId().orElse(0) + 1;
+    }
+
+    public Integer generateSalesStaffId() {
+        return salesStaffRepository.findMaxId().orElse(0) + 1;
     }
 }
