@@ -21,7 +21,6 @@ import org.example.flyora_backend.utils.IdGeneratorUtil;
 import org.springframework.stereotype.Service;
 import org.example.flyora_backend.model.Customer;
 
-
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -77,15 +76,20 @@ public class OrderServiceImpl implements OrderService {
         return Map.of("orderId", savedOrder.getId(), "status", savedOrder.getStatus());
     }
 
-
-
     @Override
     public Map<String, Object> createPayment(CreatePaymentDTO dto) {
+        // Tìm đơn hàng từ DB
+        Order order = orderRepository.findById(dto.getOrderId())
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Kiểm tra customerId có khớp với đơn hàng không
+        if (!order.getCustomer().getId().equals(dto.getCustomerId())) {
+            throw new RuntimeException("Customer ID không khớp với đơn hàng.");
+        }
+
+        // Tạo payment mới
         Payment payment = new Payment();
         payment.setId(idGeneratorUtil.generatePaymentId());
-
-        Order order = new Order();
-        order.setId(dto.getOrderId());
         payment.setOrder(order);
 
         Customer customer = new Customer();
@@ -95,7 +99,11 @@ public class OrderServiceImpl implements OrderService {
         payment.setStatus("PAID");
         payment.setPaidAt(Instant.now());
 
-        payment = paymentRepository.save(payment);
+        paymentRepository.save(payment);
+
+        // Cập nhật trạng thái đơn hàng
+        order.setStatus("PAID");
+        orderRepository.save(order);
 
         return Map.of("paymentId", payment.getId(), "status", payment.getStatus());
     }
@@ -110,16 +118,14 @@ public class OrderServiceImpl implements OrderService {
                         detail.getProduct().getId(),
                         detail.getProduct().getName(),
                         detail.getQuantity(),
-                        detail.getPrice()
-                );
+                        detail.getPrice());
             }).toList();
 
             return new OrderHistoryDTO(
                     order.getId(),
                     order.getCreatedAt(),
                     order.getStatus(),
-                    details
-            );
+                    details);
         }).toList();
     }
 }
