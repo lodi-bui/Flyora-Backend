@@ -18,8 +18,12 @@ public class PaymentService {
         long amount = dto.getAmount() * 100L;
 
         Map<String, String> vnpParamsMap = vnPayConfig.getVNPayConfig();
+
+        String txnRef = VNPayUtil.getRandomNumber(8); // ✅ Tạo 1 txnRef dùng cho cả 2
+        vnpParamsMap.put("vnp_TxnRef", txnRef);
+        vnpParamsMap.put("vnp_OrderInfo", "Thanh toan don hang: " + txnRef);
         vnpParamsMap.put("vnp_Amount", String.valueOf(amount));
-        
+
         if (dto.getBankCode() != null && !dto.getBankCode().isEmpty()) {
             vnpParamsMap.put("vnp_BankCode", dto.getBankCode());
         }
@@ -34,4 +38,5 @@ public class PaymentService {
 
         return vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
     }
+
 }
