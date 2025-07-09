@@ -23,6 +23,7 @@ public class AccountService {
     private final ShopOwnerRepository shopOwnerRepository;
     private final SalesStaffRepository salesStaffRepository;
     private final IdGeneratorUtil idGeneratorUtil;
+    private final AccessLogRepository accessLogRepository;
 
     @Transactional
     public Account createAccount(AccountDTO dto) {
@@ -127,18 +128,18 @@ public class AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
 
-        // Xóa các entity phụ thuộc (Customer, ShopOwner, SalesStaff, Admin)
-        if (account.getRole().getName().equalsIgnoreCase("Customer")) {
-            customerRepository.deleteByAccountId(id);
-        } else if (account.getRole().getName().equalsIgnoreCase("ShopOwner")) {
-            shopOwnerRepository.deleteByAccountId(id);
-        } else if (account.getRole().getName().equalsIgnoreCase("SalesStaff")) {
-            salesStaffRepository.deleteByAccountId(id);
-        } else if (account.getRole().getName().equalsIgnoreCase("Admin")) {
-            adminRepository.deleteByAccountId(id);
+        // ✅ Xóa tất cả access log liên quan trước
+        accessLogRepository.deleteByAccountId(id);
+
+        // ✅ Xóa entity phụ thuộc
+        switch (account.getRole().getName()) {
+            case "Customer" -> customerRepository.deleteByAccountId(id);
+            case "ShopOwner" -> shopOwnerRepository.deleteByAccountId(id);
+            case "SalesStaff" -> salesStaffRepository.deleteByAccountId(id);
+            case "Admin" -> adminRepository.deleteByAccountId(id);
         }
 
-        // Sau khi xóa entity phụ, mới được xóa account
+        // ✅ Cuối cùng xóa chính Account
         accountRepository.deleteById(id);
     }
 
