@@ -16,8 +16,12 @@ import org.example.flyora_backend.model.ToyDetail;
 import org.example.flyora_backend.repository.BirdTypeRepository;
 import org.example.flyora_backend.repository.FoodDetailRepository;
 import org.example.flyora_backend.repository.FurnitureDetailRepository;
+import org.example.flyora_backend.repository.InventoryRepository;
+import org.example.flyora_backend.repository.OrderItemRepository;
 import org.example.flyora_backend.repository.ProductCategoryRepository;
 import org.example.flyora_backend.repository.ProductRepository;
+import org.example.flyora_backend.repository.ProductReviewRepository;
+import org.example.flyora_backend.repository.PromotionRepository;
 import org.example.flyora_backend.repository.ShopOwnerRepository;
 import org.example.flyora_backend.repository.ToyDetailRepository;
 import org.example.flyora_backend.utils.IdGeneratorUtil;
@@ -47,6 +51,14 @@ public class OwnerServiceImpl implements OwnerService {
     private FurnitureDetailRepository furnitureDetailRepository;
     @Autowired
     private IdGeneratorUtil idGeneratorUtil;
+    @Autowired
+    private InventoryRepository inventoryRepository;
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+    @Autowired
+    private PromotionRepository promotionRepository;
+    @Autowired
+    private ProductReviewRepository productReviewRepository;
 
     @Override
     public List<TopProductDTO> getTopSellingProducts(int accountId) {
@@ -66,7 +78,7 @@ public class OwnerServiceImpl implements OwnerService {
                 .orElseThrow(() -> new RuntimeException("Loại chim không hợp lệ"));
 
         ShopOwner shopOwner = shopOwnerRepository.findByAccountId(accountId)
-            .orElseThrow(() -> new RuntimeException("ShopOwner không tồn tại"));
+                .orElseThrow(() -> new RuntimeException("ShopOwner không tồn tại"));
         Integer newProductId = idGeneratorUtil.generateProductId();
 
         Product product = Product.builder()
@@ -195,13 +207,37 @@ public class OwnerServiceImpl implements OwnerService {
     public void deleteProduct(Integer productId, Integer accountId) {
         ShopOwner owner = shopOwnerRepository.findByAccountId(accountId)
                 .orElseThrow(() -> new RuntimeException("ShopOwner không tồn tại"));
+
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
 
-        if (!product.getCategory().getId().equals(owner.getId())) {
+        // Kiểm tra quyền sở hữu
+        if (!product.getShopOwner().getId().equals(owner.getId())) {
             throw new RuntimeException("Sản phẩm không thuộc sở hữu của bạn");
         }
 
+        // Kiểm tra xem sản phẩm đã từng bán chưa
+        boolean isSold = orderItemRepository.existsByProductId(productId);
+        if (isSold) {
+            throw new RuntimeException("Không thể xóa sản phẩm đã được bán");
+        }
+
+        // Xóa chi tiết sản phẩm
+        String category = product.getCategory().getName().toUpperCase();
+        switch (category) {
+            case "FOODS" -> foodDetailRepository.deleteById(productId);
+            case "TOYS" -> toyDetailRepository.deleteById(productId);
+            case "FURNITURE" -> furnitureDetailRepository.deleteById(productId);
+            default -> throw new RuntimeException("Loại sản phẩm không hỗ trợ");
+        }
+
+        // Xóa các liên kết phụ
+        inventoryRepository.deleteAllByProductId(productId);
+        promotionRepository.deleteAllByProductId(productId);
+        productReviewRepository.deleteAllByProductId(productId);
+
+        // Cuối cùng xóa sản phẩm
         productRepository.delete(product);
     }
+
 }

@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.example.flyora_backend.model.OrderItem;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
+
 public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     @Query("SELECT MAX(oi.id) FROM OrderItem oi")
     Optional<Integer> findMaxId();
@@ -27,6 +28,5 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
         return result;
     }
 
-
+    boolean existsByProductId(Integer productId);
 }
-
