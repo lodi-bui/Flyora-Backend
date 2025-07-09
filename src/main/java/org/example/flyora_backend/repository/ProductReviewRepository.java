@@ -15,4 +15,5 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, In
     @Query("SELECT MAX(r.id) FROM ProductReview r")
     Optional<Integer> findMaxId();
 
+    void deleteAllByProductId(Integer productId);
 }
