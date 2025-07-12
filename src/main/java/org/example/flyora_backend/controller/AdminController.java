@@ -43,7 +43,7 @@ public class AdminController {
     private InfoService infoService;
 
     private void verifyAdmin(Integer requestAccountId) {
-        Optional<Account> optionalAcc = accountRepository.findById(requestAccountId);        
+        Optional<Account> optionalAcc = accountRepository.findById(requestAccountId);
         if (optionalAcc.isPresent()) {
             Account acc = optionalAcc.get();
             if (!acc.getRole().getName().equalsIgnoreCase("Admin")) {
@@ -53,23 +53,20 @@ public class AdminController {
     }
 
     @PostMapping
-    @Operation(
-        summary = "Tạo tài khoản mới",
-        description = """
-            Tạo mới tài khoản (chỉ dành cho Admin).
+    @Operation(summary = "Tạo tài khoản mới", description = """
+                Tạo mới tài khoản (chỉ dành cho Admin).
 
-            ✅ Trường yêu cầu trong body (AccountDTO):
-            - username (String)
-            - password (String)
-            - phone (String)
-            - roleId (Integer): 1=ADMIN, 2=SHOPOWNER, 3=SALESSTAFF, 4=CUSTOMER
-            - approvedBy (Integer): ID của admin duyệt
+                ✅ Trường yêu cầu trong body (AccountDTO):
+                - username (String)
+                - password (String)
+                - phone (String)
+                - roleId (Integer): 1=ADMIN, 2=SHOPOWNER, 3=SALESSTAFF, 4=CUSTOMER
+                - approvedBy (Integer): ID của admin duyệt
 
-            📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
+                📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
 
-            🔁 Trả về: Account đã tạo nếu thành công.
-        """
-    )
+                🔁 Trả về: Account đã tạo nếu thành công.
+            """)
     public ResponseEntity<?> createAccount(@RequestBody AccountDTO dto, @RequestParam Integer requesterId) {
         verifyAdmin(requesterId);
         accessLogService.logAction(requesterId, "Tạo tài khoản mới");
@@ -78,43 +75,38 @@ public class AdminController {
     }
 
     @GetMapping
-    @Operation(
-        summary = "Xem danh sách tất cả tài khoản",
-        description = """
-            Trả về danh sách tất cả tài khoản hiện có trong hệ thống (chỉ dành cho Admin).
+    @Operation(summary = "Xem danh sách tất cả tài khoản", description = """
+                Trả về danh sách tất cả tài khoản hiện có trong hệ thống (chỉ dành cho Admin).
 
-            📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
+                📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
 
-            🔁 Trả về: Danh sách tất cả Account.
-        """
-    )
+                🔁 Trả về: Danh sách tất cả Account.
+            """)
     public ResponseEntity<?> getAllAccounts(@RequestParam Integer requesterId) {
         verifyAdmin(requesterId);
         return ResponseEntity.ok(accountService.getAllAccounts());
     }
 
     @PutMapping("/{id}")
-    @Operation(
-        summary = "Cập nhật tài khoản",
-        description = """
-            Cập nhật thông tin tài khoản theo ID (chỉ dành cho Admin).
+    @Operation(summary = "Cập nhật tài khoản", description = """
+                Cập nhật thông tin tài khoản theo ID (chỉ dành cho Admin).
 
-            ✅ Trường yêu cầu trong body (AccountDTO):
-            - username (String)
-            - password (String)
-            - email (String)
-            - phone (String)
-            - roleId (Integer)
-            - approvedBy (Integer)
-            - isActive (Boolean)
-            - isApproved (Boolean)
+                ✅ Trường yêu cầu trong body (AccountDTO):
+                - username (String)
+                - password (String)
+                - email (String)
+                - phone (String)
+                - roleId (Integer)
+                - approvedBy (Integer)
+                - isActive (Boolean)
+                - isApproved (Boolean)
 
-            📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
+                📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
 
-            🔁 Trả về: Account đã cập nhật nếu thành công.
-        """
-    )
-    public ResponseEntity<?> updateAccount(@PathVariable Integer id, @RequestBody AccountDTO dto, @RequestParam Integer requesterId) {
+                🔁 Trả về: Account đã cập nhật nếu thành công.
+            """)
+    public ResponseEntity<?> updateAccount(@PathVariable Integer id, @RequestBody AccountDTO dto,
+            @RequestParam Integer requesterId) {
         verifyAdmin(requesterId);
         accessLogService.logAction(requesterId, "Cập nhật tài khoản");
         Account account = accountService.updateAccount(id, dto);
@@ -122,16 +114,13 @@ public class AdminController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(
-        summary = "Xóa tài khoản",
-        description = """
-            Xóa tài khoản theo ID (chỉ dành cho Admin).
+    @Operation(summary = "Xóa tài khoản", description = """
+                Xóa tài khoản theo ID (chỉ dành cho Admin).
 
-            📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
+                📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
 
-            🔁 Trả về: Thông báo xóa thành công nếu thực hiện được.
-        """
-    )
+                🔁 Trả về: Thông báo xóa thành công nếu thực hiện được.
+            """)
     public ResponseEntity<?> deleteAccount(@PathVariable Integer id, @RequestParam Integer requesterId) {
         verifyAdmin(requesterId);
         accountService.deleteAccount(id);
@@ -140,16 +129,13 @@ public class AdminController {
     }
 
     @PutMapping("/{id}/activate")
-    @Operation(
-        summary = "Kích hoạt tài khoản",
-        description = """
-            Kích hoạt tài khoản (chỉ dành cho Admin).
+    @Operation(summary = "Kích hoạt tài khoản", description = """
+                Kích hoạt tài khoản (chỉ dành cho Admin).
 
-            📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
+                📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
 
-            🔁 Trả về: Account đã được kích hoạt.
-        """
-    )
+                🔁 Trả về: Account đã được kích hoạt.
+            """)
     public ResponseEntity<?> activateAccount(@PathVariable Integer id, @RequestParam Integer requesterId) {
         verifyAdmin(requesterId);
         accessLogService.logAction(requesterId, "Kích hoạt");
@@ -158,16 +144,13 @@ public class AdminController {
     }
 
     @PutMapping("/{id}/deactivate")
-    @Operation(
-        summary = "Hủy kích hoạt tài khoản",
-        description = """
-            Hủy kích hoạt tài khoản (chỉ dành cho Admin).
+    @Operation(summary = "Hủy kích hoạt tài khoản", description = """
+                Hủy kích hoạt tài khoản (chỉ dành cho Admin).
 
-            📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
+                📌 `requesterId` là ID của tài khoản gửi request, dùng để xác thực quyền admin.
 
-            🔁 Trả về: Account đã được hủy kích hoạt.
-        """
-    )
+                🔁 Trả về: Account đã được hủy kích hoạt.
+            """)
     public ResponseEntity<?> deactivateAccount(@PathVariable Integer id, @RequestParam Integer requesterId) {
         verifyAdmin(requesterId);
         accessLogService.logAction(requesterId, "Hủy kích hoạt");
@@ -176,16 +159,13 @@ public class AdminController {
     }
 
     @GetMapping("/logs")
-    @Operation(
-        summary = "Xem lịch sử hoạt động người dùng",
-        description = """
-            Trả về danh sách các hoạt động truy cập của tất cả tài khoản (chỉ dành cho Admin).
+    @Operation(summary = "Xem lịch sử hoạt động người dùng", description = """
+                Trả về danh sách các hoạt động truy cập của tất cả tài khoản (chỉ dành cho Admin).
 
-            📌 `requesterId` là ID tài khoản yêu cầu (Admin).
+                📌 `requesterId` là ID tài khoản yêu cầu (Admin).
 
-            🔁 Trả về: Danh sách AccessLogDTO.
-        """
-    )
+                🔁 Trả về: Danh sách AccessLogDTO.
+            """)
     public ResponseEntity<?> getAccessLogs(@RequestParam Integer requesterId) {
         verifyAdmin(requesterId);
 
@@ -204,20 +184,17 @@ public class AdminController {
     }
 
     @PostMapping("/news")
-    @Operation(
-        summary = "Tạo bản tin mới",
-        description = """
-            Tạo bài viết mới (NewsArticle) từ URL và tiêu đề (chỉ dành cho Admin).
+    @Operation(summary = "Tạo bản tin mới", description = """
+                Tạo bài viết mới (NewsArticle) từ URL và tiêu đề (chỉ dành cho Admin).
 
-            📌 Trường yêu cầu trong body:
-            - title (String): Tiêu đề
-            - url (String): Đường dẫn bài viết (có thể crawl nội dung nếu cần)
+                📌 Trường yêu cầu trong body:
+                - title (String): Tiêu đề
+                - url (String): Đường dẫn bài viết (có thể crawl nội dung nếu cần)
 
-            📌 `requesterId`: ID tài khoản gọi request để xác minh quyền Admin.
+                📌 `requesterId`: ID tài khoản gọi request để xác minh quyền Admin.
 
-            🔁 Trả về: Bản tin vừa tạo.
-        """
-    )
+                🔁 Trả về: Bản tin vừa tạo.
+            """)
     public ResponseEntity<?> createNews(@RequestBody CreateNewsDTO dto, @RequestParam Integer requesterId) {
         verifyAdmin(requesterId);
         accessLogService.logAction(requesterId, "Tạo bản tin: " + dto.getTitle());

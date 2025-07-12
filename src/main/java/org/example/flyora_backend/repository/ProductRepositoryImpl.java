@@ -91,45 +91,47 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<ProductBestSellerDTO> findBestSellersTop1PerCategory() {
-        String sql = """
-                    SELECT p.id AS productId, p.name AS productName, c.name AS categoryName,
-                        p.price AS price, SUM(oi.quantity) AS totalSold,
-                        COALESCE(fd.image_url, td.image_url, fud.image_url) AS imageUrl
-                    FROM OrderItem oi
-                    JOIN Product p ON oi.product_id = p.id
-                    JOIN ProductCategory c ON p.category_id = c.id
-                    LEFT JOIN FoodDetail fd ON p.id = fd.product_id AND c.name = 'FOODS'
-                    LEFT JOIN ToyDetail td ON p.id = td.product_id AND c.name = 'TOYS'
-                    LEFT JOIN FurnitureDetail fud ON p.id = fud.product_id AND c.name = 'FURNITURE'
-                    GROUP BY p.id, p.name, c.name, p.price, imageUrl
-                """;
-
-        Query query = em.createNativeQuery(sql);
-
-        @SuppressWarnings("unchecked")
-        List<Object[]> results = query.getResultList();
-
-        // Map để giữ top 1 sản phẩm mỗi category
-        Map<String, ProductBestSellerDTO> bestSellers = new HashMap<>();
-
-        for (Object[] row : results) {
-            Integer productId = (Integer) row[0];
-            String name = (String) row[1];
-            String category = (String) row[2];
-            BigDecimal price = (BigDecimal) row[3];
-            Long totalSold = ((Number) row[4]).longValue();
-            String imageUrl = (String) row[5];
-
-            ProductBestSellerDTO dto = new ProductBestSellerDTO(productId, name, category, price, totalSold, imageUrl);
-
-            // Giữ lại sản phẩm có lượng bán cao nhất cho mỗi category
-            if (!bestSellers.containsKey(category) || bestSellers.get(category).totalSold() < totalSold) {
-                bestSellers.put(category, dto);
+    public List<ProductBestSellerDTO> findTop15BestSellers() {
+        List<ProductBestSellerDTO> result = new ArrayList<>();
+        
+        String[] categories = {"TOYS", "FURNITURE", "FOODS"};
+        
+        for (String category : categories) {
+            String sql = """
+                        SELECT p.id AS productId, p.name AS productName, c.name AS categoryName,
+                            p.price AS price, COALESCE(SUM(oi.quantity), 0) AS totalSold,
+                            COALESCE(fd.image_url, td.image_url, fud.image_url) AS imageUrl
+                        FROM Product p
+                        JOIN ProductCategory c ON p.category_id = c.id
+                        LEFT JOIN OrderItem oi ON p.id = oi.product_id
+                        LEFT JOIN FoodDetail fd ON p.id = fd.product_id AND c.name = 'FOODS'
+                        LEFT JOIN ToyDetail td ON p.id = td.product_id AND c.name = 'TOYS'
+                        LEFT JOIN FurnitureDetail fud ON p.id = fud.product_id AND c.name = 'FURNITURE'
+                        WHERE c.name = :category
+                        GROUP BY p.id, p.name, c.name, p.price, imageUrl
+                        ORDER BY totalSold DESC
+                        LIMIT 5
+                    """;
+            
+            Query query = em.createNativeQuery(sql);
+            query.setParameter("category", category);
+            
+            @SuppressWarnings("unchecked")
+            List<Object[]> rows = query.getResultList();
+            
+            for (Object[] row : rows) {
+                Integer productId = (Integer) row[0];
+                String name = (String) row[1];
+                String categoryName = (String) row[2];
+                BigDecimal price = (BigDecimal) row[3];
+                Long totalSold = ((Number) row[4]).longValue();
+                String imageUrl = (String) row[5];
+                
+                result.add(new ProductBestSellerDTO(productId, name, categoryName, price, totalSold, imageUrl));
             }
         }
-
-        return new ArrayList<>(bestSellers.values());
+        
+        return result;
     }
 
     @Override

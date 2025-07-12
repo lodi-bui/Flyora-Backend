@@ -44,10 +44,10 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductDetail(id));
     }
 
-    @Operation(summary = "Lấy sản phẩm bán chạy nhất mỗi danh mục", description = "Trả về sản phẩm có số lượng bán cao nhất của từng danh mục.")
-    @GetMapping("/best-sellers/top1")
-    public ResponseEntity<List<ProductBestSellerDTO>> getTop1BestSellersPerCategory() {
-        return ResponseEntity.ok(productService.getTop1BestSellersPerCategory());
+    @Operation(summary = "Lấy top 15 sản phẩm bán chạy", description = "Trả về top 5 sản phẩm bán chạy nhất từ mỗi danh mục (TOYS, FURNITURE, FOODS).")
+    @GetMapping("/best-sellers/top15")
+    public ResponseEntity<List<ProductBestSellerDTO>> getTop15BestSellers() {
+        return ResponseEntity.ok(productService.getTop15BestSellers());
     }
 
     @Operation(summary = "Tìm sản phẩm theo tên", description = "Tìm kiếm sản phẩm theo từ khóa.")

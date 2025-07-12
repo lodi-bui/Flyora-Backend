@@ -15,7 +15,7 @@ public interface ProductService {
 
     ProductDetailDTO getProductDetail(Integer id);
 
-    List<ProductBestSellerDTO> getTop1BestSellersPerCategory();
+    List<ProductBestSellerDTO> getTop15BestSellers();
 
     List<ProductListDTO> searchByName(String name);
 

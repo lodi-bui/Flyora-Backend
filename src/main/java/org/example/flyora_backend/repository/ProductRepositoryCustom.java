@@ -20,7 +20,7 @@ public interface ProductRepositoryCustom {
         Pageable pageable
     );
 
-    List<ProductBestSellerDTO> findBestSellersTop1PerCategory();
+    List<ProductBestSellerDTO> findTop15BestSellers();
 
     List<ProductListDTO> searchByName(String name);
 

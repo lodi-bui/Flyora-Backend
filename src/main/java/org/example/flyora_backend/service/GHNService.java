@@ -26,11 +26,11 @@ public class GHNService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-            PROVINCE_API,
-            HttpMethod.GET,
-            entity,
-            new ParameterizedTypeReference<>() {}
-        );
+                PROVINCE_API,
+                HttpMethod.GET,
+                entity,
+                new ParameterizedTypeReference<>() {
+                });
 
         Object rawData = response.getBody().get("data");
         List<ProvinceDTO> provinces = new ArrayList<>();
