@@ -147,14 +147,17 @@ public class OwnerServiceImpl implements OwnerService {
 
     @Override
     public Product updateProduct(Integer productId, CreateProductDTO dto, Integer accountId) {
+        // 1. Lấy sản phẩm hiện có từ database
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm"));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm với ID: " + productId));
 
+        // 2. Cập nhật các thuộc tính cơ bản của sản phẩm
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
         product.setPrice(dto.getPrice());
         product.setStock(dto.getStock());
 
+        // 3. Lấy và cập nhật các đối tượng liên quan (Category và BirdType)
         ProductCategory category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Loại sản phẩm không hợp lệ"));
         BirdType birdType = birdTypeRepository.findById(dto.getBirdTypeId())
@@ -163,9 +166,17 @@ public class OwnerServiceImpl implements OwnerService {
         product.setCategory(category);
         product.setBirdType(birdType);
 
+        // 4. Xử lý logic cập nhật cho các bảng chi tiết (Detail) dựa trên danh mục
+        // Đây là phần quan trọng đã được sửa lỗi cho tất cả các trường hợp
         switch (category.getName().toUpperCase()) {
             case "FOODS" -> {
-                FoodDetail detail = foodDetailRepository.findById(productId).orElse(new FoodDetail());
+                FoodDetail detail = foodDetailRepository.findByProductId(productId).orElse(new FoodDetail());
+
+                // Gán ID nếu đây là đối tượng mới được tạo ra
+                if (detail.getId() == null) {
+                    detail.setId(idGeneratorUtil.generateFoodDetailId());
+                }
+
                 detail.setProduct(product);
                 detail.setMaterial(dto.getMaterial());
                 detail.setOrigin(dto.getOrigin());
@@ -175,7 +186,14 @@ public class OwnerServiceImpl implements OwnerService {
                 foodDetailRepository.save(detail);
             }
             case "TOYS" -> {
-                ToyDetail detail = toyDetailRepository.findById(productId).orElse(new ToyDetail());
+                // Sửa lỗi tương tự cho ToyDetail
+                ToyDetail detail = toyDetailRepository.findByProductId(productId).orElse(new ToyDetail());
+
+                // Gán ID nếu đây là đối tượng mới được tạo ra
+                if (detail.getId() == null) {
+                    detail.setId(idGeneratorUtil.generateToyDetailId());
+                }
+
                 detail.setProduct(product);
                 detail.setMaterial(dto.getMaterial());
                 detail.setOrigin(dto.getOrigin());
@@ -186,7 +204,15 @@ public class OwnerServiceImpl implements OwnerService {
                 toyDetailRepository.save(detail);
             }
             case "FURNITURE" -> {
-                FurnitureDetail detail = furnitureDetailRepository.findById(productId).orElse(new FurnitureDetail());
+                // Sửa lỗi tương tự cho FurnitureDetail
+                FurnitureDetail detail = furnitureDetailRepository.findByProductId(productId)
+                        .orElse(new FurnitureDetail());
+
+                // Gán ID nếu đây là đối tượng mới được tạo ra
+                if (detail.getId() == null) {
+                    detail.setId(idGeneratorUtil.generateFurnitureDetailId());
+                }
+
                 detail.setProduct(product);
                 detail.setMaterial(dto.getMaterial());
                 detail.setOrigin(dto.getOrigin());
@@ -196,9 +222,11 @@ public class OwnerServiceImpl implements OwnerService {
                 detail.setImageUrl(dto.getImageUrl());
                 furnitureDetailRepository.save(detail);
             }
-            default -> throw new RuntimeException("Loại sản phẩm không hỗ trợ");
+            default ->
+                throw new RuntimeException("Loại sản phẩm không hỗ trợ cập nhật chi tiết: " + category.getName());
         }
 
+        // 5. Lưu lại sản phẩm đã được cập nhật và trả về
         return productRepository.save(product);
     }
 

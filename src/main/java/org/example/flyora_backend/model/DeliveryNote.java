@@ -10,7 +10,7 @@ import java.time.Instant;
 @Entity
 @Getter
 @Setter
-@Table(name = "DelivaryNote")
+@Table(name = "DeliveryNote")
 public class DeliveryNote {
 
     @Id

@@ -34,14 +34,17 @@ public class OrderController {
     private PaymentService paymentService;
 
     @PostMapping("/orders")
-    @Operation(summary = "Tạo đơn hàng mới", description = """
-                ✅ Body (CreateOrderDTO):
-                - customerId: ID của khách hàng
-                - items: Danh sách sản phẩm muốn đặt (mỗi item gồm productId và quantity)
+    @Operation(summary = "[Quy trình Bước 1] Tạo đơn hàng nháp", description = """
+            Tạo một đơn hàng mới trong hệ thống với trạng thái "PENDING".
+            Đây là bước đầu tiên và bắt buộc trong quy trình đặt hàng.
 
-                🛒 Hệ thống sẽ tạo mới đơn hàng với trạng thái `PENDING`.
+            🔑 **Quyền truy cập:** Khách hàng đã đăng nhập.
 
-                🔁 Trả về: orderId và trạng thái đơn hàng.
+            ✅ **Body yêu cầu (CreateOrderDTO):**
+            - `customerId` (integer): ID của khách hàng đang đặt hàng.
+            - `items` (array): Danh sách sản phẩm, mỗi sản phẩm gồm `productId` và `quantity`.
+
+            🔁 **Trả về:** `orderId` và `status` ("PENDING") của đơn hàng vừa tạo.
             """)
     public ResponseEntity<?> createOrder(@RequestBody CreateOrderDTO dto) {
         accessLogService.logAction(dto.getCustomerId(), "Tạo đơn hàng");
@@ -49,22 +52,22 @@ public class OrderController {
     }
 
     @PostMapping("/payments")
-    @Operation(summary = "Tạo hoặc xác nhận thanh toán đơn hàng", description = """
-                ✅ Body (CreatePaymentDTO):
-                - orderId: ID của đơn hàng
-                - customerId: ID khách hàng thực hiện thanh toán
-                - paymentMethodId: ID phương thức thanh toán (1 = VNPay, 2 = COD)
-                - amount: Số tiền thanh toán (chỉ dùng cho VNPay)
+    @Operation(summary = "[Quy trình Bước 2] Xác nhận thanh toán & Giao hàng", description = """
+            Xác nhận phương thức thanh toán cho một đơn hàng đã tạo ở Bước 1.
+            **Đây là API then chốt để kích hoạt việc tự động tạo đơn vận chuyển và lưu vào database.**
 
-                💳 Nếu chọn VNPay:
-                - Hệ thống tạo URL chuyển hướng đến trang thanh toán.
+            🔑 **Quyền truy cập:** Khách hàng đã đăng nhập.
 
-                🚚 Nếu chọn COD:
-                - Ghi nhận thanh toán và lưu trạng thái `PAID` ngay.
+            ✅ **Body yêu cầu (CreatePaymentDTO):**
+            - `orderId` (integer): ID của đơn hàng (lấy từ API Bước 1).
+            - `customerId` (integer): ID của khách hàng.
+            - `paymentMethodId` (integer): 1 (VNPay) hoặc 2 (COD).
+            - `amount` (long, *chỉ cho VNPay*): Tổng số tiền thanh toán.
+            - **Các trường địa chỉ (bắt buộc cho COD):** `to_name`, `to_phone`, `to_address`, `to_ward_code`, `to_district_id`.
 
-                🔁 Trả về:
-                - Với VNPay: URL thanh toán
-                - Với COD: paymentId và trạng thái thanh toán
+            🔁 **Hành vi và Kết quả trả về:**
+            - **Với VNPay (1):** Trả về một `paymentUrl` để frontend chuyển hướng người dùng. **Việc giao hàng sẽ được kích hoạt ở API callback.**
+            - **Với COD (2):** **Hệ thống sẽ tự động gọi GHN để tạo đơn vận chuyển, sau đó lưu mã vận đơn và cập nhật trạng thái đơn hàng thành "Shipping".** Trả về `paymentId` và `orderStatus`.
             """)
     public ResponseEntity<?> createOrRedirectPayment(@RequestBody CreatePaymentDTO dto, HttpServletRequest request) {
         accessLogService.logAction(dto.getCustomerId(), "Thanh toán đơn hàng");
@@ -86,18 +89,16 @@ public class OrderController {
     }
 
     @GetMapping("/payment/vn-pay-callback")
-    @Operation(summary = "Xử lý callback từ VNPay sau khi thanh toán", description = """
-                ✅ VNPay sẽ redirect về URL này với các tham số như vnp_TxnRef, vnp_ResponseCode, vnp_Amount, vnp_SecureHash...
+    @Operation(summary = "[Callback] Xử lý kết quả trả về từ VNPay", description = """
+            **API này không dành cho frontend gọi trực tiếp.**
+            VNPay sẽ tự động gọi về URL này sau khi người dùng hoàn tất thanh toán.
 
-                📌 Bạn cần xác minh chữ ký `vnp_SecureHash`, kiểm tra mã giao dịch, cập nhật trạng thái đơn hàng và ghi nhận thanh toán.
-
-                🛠 Nếu hợp lệ: Cập nhật đơn hàng → PAID
+            - **Logic backend:** Nếu thanh toán thành công (`vnp_ResponseCode` = "00"), backend sẽ thực hiện quy trình tạo đơn vận chuyển với GHN và cập nhật trạng thái đơn hàng (tương tự như khi chọn COD).
             """)
     public ResponseEntity<?> handleVnPayCallback(HttpServletRequest request) {
         Map<String, String> params = VNPayUtil.getVNPayResponseParams(request);
         String vnp_ResponseCode = params.get("vnp_ResponseCode");
         String vnp_TxnRef = params.get("vnp_TxnRef");
-
 
         if ("00".equals(vnp_ResponseCode)) {
             // ✅ Thành công: cập nhật trạng thái đơn hàng + payment
@@ -110,11 +111,13 @@ public class OrderController {
 
     @GetMapping("/my-orders")
     @Operation(summary = "Xem lịch sử đơn hàng của khách hàng", description = """
-                ✅ Query param:
-                - customerId: ID của khách hàng muốn xem lịch sử
+            Lấy danh sách tất cả các đơn hàng đã đặt của một khách hàng cụ thể, sắp xếp theo thứ tự mới nhất.
 
-                📦 Trả về danh sách đơn hàng theo thứ tự mới nhất,
-                mỗi đơn gồm thông tin đơn hàng + danh sách sản phẩm đã đặt.
+            🔑 **Quyền truy cập:** Khách hàng đã đăng nhập.
+
+            - **`customerId`** (param): ID của khách hàng cần xem lịch sử.
+
+            🔁 **Trả về:** Danh sách đơn hàng, mỗi đơn hàng bao gồm thông tin chung và danh sách chi tiết các sản phẩm.
             """)
     public ResponseEntity<List<OrderHistoryDTO>> getMyOrders(@RequestParam Integer customerId) {
         accessLogService.logAction(customerId, "Xem lịch sử đơn hàng");
