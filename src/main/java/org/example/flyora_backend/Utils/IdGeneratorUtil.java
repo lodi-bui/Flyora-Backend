@@ -33,6 +33,8 @@ public class IdGeneratorUtil {
     private ShopOwnerRepository shopOwnerRepository;
     @Autowired
     private SalesStaffRepository salesStaffRepository;
+    @Autowired
+    private DeliveryNoteRepository deliveryNoteRepository;
 
     IdGeneratorUtil(FoodDetailRepository foodDetailRepository) {
         this.foodDetailRepository = foodDetailRepository;
@@ -88,5 +90,9 @@ public class IdGeneratorUtil {
 
     public Integer generateSalesStaffId() {
         return salesStaffRepository.findMaxId().orElse(0) + 1;
+    }
+
+    public Integer generateDeliveryNoteId() {
+        return deliveryNoteRepository.findMaxId().orElse(0) + 1;
     }
 }
