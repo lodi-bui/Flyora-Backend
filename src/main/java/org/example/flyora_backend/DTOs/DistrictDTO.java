@@ -9,12 +9,10 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProvinceDTO {
+public class DistrictDTO {
+    @JsonProperty("DistrictID")
+    private Integer DistrictID;
 
-    // Giữ nguyên các thuộc tính bạn cần
-    @JsonProperty("ProvinceID")
-    private Integer ProvinceID;
-
-    @JsonProperty("ProvinceName")
-    private String ProvinceName;
+    @JsonProperty("DistrictName")
+    private String DistrictName;
 }
