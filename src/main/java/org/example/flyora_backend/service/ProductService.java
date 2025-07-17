@@ -8,10 +8,9 @@ import org.example.flyora_backend.DTOs.ProductDetailDTO;
 import org.example.flyora_backend.DTOs.ProductFilterDTO;
 import org.example.flyora_backend.DTOs.ProductListDTO;
 import org.example.flyora_backend.model.Product;
-import org.springframework.data.domain.Page;
 
 public interface ProductService {
-    Page<ProductListDTO> filterProducts(ProductFilterDTO filter);
+    List<ProductListDTO> filterProducts(ProductFilterDTO filter);
 
     ProductDetailDTO getProductDetail(Integer id);
 
