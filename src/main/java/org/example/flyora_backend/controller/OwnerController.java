@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -113,29 +114,52 @@ public class OwnerController {
         }
     }
 
-    @Operation(summary = "Lấy tất cả sản phẩm", description = """
+    // ========== PHẦN ĐÃ SỬA LỖI ==========
+    // Đã xóa phương thức getAllProducts() cũ và chỉ giữ lại phương thức searchProducts() mới.
+    @Operation(summary = "Lấy và tìm kiếm sản phẩm của shop", description = """
                 ✅ Dành cho ShopOwner và Staff:
                 - Trả về danh sách tất cả sản phẩm thuộc Shop của người dùng.
-                - Sắp xếp theo ID tăng dần.
-                - Gồm trạng thái hàng hóa: "Còn hàng" hoặc "Hết hàng".
+                - Hỗ trợ tìm kiếm theo tên sản phẩm bằng cách truyền query param `keyword`.
+                - Nếu không truyền `keyword`, hệ thống sẽ trả về tất cả sản phẩm.
+                - Sắp xếp theo ID sản phẩm tăng dần.
+                - Trạng thái sản phẩm được tính toán: "Còn hàng" hoặc "Hết hàng".
 
-                📦 Mỗi item gồm:
-                - id, name, price, stock, status, imageUrl
+                📦 Mỗi item trong danh sách trả về gồm:
+                - id: ID sản phẩm
+                - name: Tên sản phẩm
+                - price: Giá bán
+                - stock: Số lượng tồn kho
+                - status: Trạng thái ("Còn hàng" / "Hết hàng")
+                - imageUrl: URL hình ảnh của sản phẩm
 
-                ❌ Nếu không phải ShopOwner hoặc Staff: HTTP 403
+                ❓ **Cách dùng:**
+                - Lấy tất cả sản phẩm: `GET /api/v1/owner/products`
+                - Tìm kiếm sản phẩm có tên chứa "gỗ": `GET /api/v1/owner/products?keyword=gỗ`
+
+                ❌ Nếu không phải ShopOwner hoặc Staff: Trả về HTTP 403 (FORBIDDEN)
             """)
     @GetMapping("/products")
-    public ResponseEntity<?> getAllProducts(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> searchProducts(
+            @RequestHeader("Authorization") String token,
+            @RequestParam(name = "keyword", required = false) String keyword) {
+
         Account account = jwtUtil.getAccountFromToken(token);
         String role = account.getRole().getName();
 
-        if (!role.equals("ShopOwner") && !role.equals("Staff")) {
+        // Theo schema, vai trò nhân viên là "SalesStaff"
+        if (!role.equals("ShopOwner") && !role.equals("SalesStaff")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Chỉ Shop Owner hoặc Staff mới được phép xem danh sách sản phẩm");
         }
 
-        List<OwnerProductListDTO> products = ownerService.getAllProductsByOwner(account.getId());
-        accessLogService.logAction(account.getId(), "Xem danh sách sản phẩm");
+        // Giả sử bạn đã có phương thức `searchProductsByOwner` trong service
+        // Nếu chưa, bạn cần tạo nó như hướng dẫn ở lần trả lời trước
+        List<OwnerProductListDTO> products = ownerService.searchProductsByOwner(account.getId(), keyword);
+        
+        String logAction = (keyword == null || keyword.isEmpty())
+                ? "Xem tất cả sản phẩm"
+                : "Tìm kiếm sản phẩm với từ khóa: " + keyword;
+        accessLogService.logAction(account.getId(), logAction);
 
         return ResponseEntity.ok(products);
     }
@@ -159,7 +183,7 @@ public class OwnerController {
         Account account = jwtUtil.getAccountFromToken(token);
         String role = account.getRole().getName();
 
-        if (!"ShopOwner".equals(role) && !"Staff".equals(role)) {
+        if (!"ShopOwner".equals(role) && !"SalesStaff".equals(role)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Chỉ ShopOwner hoặc Staff mới được phép chỉnh sửa sản phẩm");
         }
@@ -203,5 +227,4 @@ public class OwnerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-
 }

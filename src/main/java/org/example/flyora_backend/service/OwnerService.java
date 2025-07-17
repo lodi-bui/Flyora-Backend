@@ -17,4 +17,6 @@ public interface OwnerService {
     public Product updateProduct(Integer productId, CreateProductDTO dto, Integer accountId);
 
     public void deleteProduct(Integer productId, Integer accountId);
+    
+    List<OwnerProductListDTO> searchProductsByOwner(int accountId, String keyword);
 }

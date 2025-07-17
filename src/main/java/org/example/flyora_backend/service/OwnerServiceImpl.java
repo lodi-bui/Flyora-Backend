@@ -268,4 +268,12 @@ public class OwnerServiceImpl implements OwnerService {
         productRepository.delete(product);
     }
 
+    @Override
+    public List<OwnerProductListDTO> searchProductsByOwner(int accountId, String keyword) {
+        ShopOwner owner = shopOwnerRepository.findByAccountId(accountId)
+                .orElseThrow(() -> new RuntimeException("ShopOwner không tồn tại"));
+
+        // Gọi phương thức mới trong repository
+        return productRepository.searchProductsByShopOwner(owner.getId(), keyword);
+    }
 }
