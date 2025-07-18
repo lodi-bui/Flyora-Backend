@@ -35,6 +35,8 @@ public class IdGeneratorUtil {
     private SalesStaffRepository salesStaffRepository;
     @Autowired
     private DeliveryNoteRepository deliveryNoteRepository;
+    @Autowired
+    private SystemLogRepository systemLogRepository;
 
     IdGeneratorUtil(FoodDetailRepository foodDetailRepository) {
         this.foodDetailRepository = foodDetailRepository;
@@ -94,5 +96,9 @@ public class IdGeneratorUtil {
 
     public Integer generateDeliveryNoteId() {
         return deliveryNoteRepository.findMaxId().orElse(0) + 1;
+    }
+    
+    public Integer generateSystemLogId() {
+        return systemLogRepository.findMaxId().orElse(0) + 1;
     }
 }
