@@ -6,9 +6,6 @@ import org.example.flyora_backend.DTOs.OwnerProductListDTO;
 import org.example.flyora_backend.DTOs.ProductBestSellerDTO;
 import org.example.flyora_backend.DTOs.ProductListDTO;
 import org.example.flyora_backend.DTOs.TopProductDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -22,8 +19,8 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     private EntityManager em;
 
     @Override
-    public Page<ProductListDTO> filterProducts(String name, Integer categoryId, Integer birdTypeId, BigDecimal minPrice,
-            BigDecimal maxPrice, Pageable pageable) {
+    public List<ProductListDTO> filterProducts(String name, Integer categoryId, Integer birdTypeId, BigDecimal minPrice,
+            BigDecimal maxPrice) {
         String sql = """
                     SELECT p.id, p.name, c.name AS category, bt.name AS birdType,
                         p.price, p.stock,
@@ -65,35 +62,16 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
             dtos.add(dto);
         }
 
-        String countSql = """
-                    SELECT COUNT(*)
-                    FROM Product p
-                    JOIN ProductCategory c ON p.category_id = c.id
-                    WHERE (:name IS NULL OR LOWER(p.name) LIKE CONCAT('%', LOWER(:name), '%'))
-                    AND (:categoryId IS NULL OR p.category_id = :categoryId)
-                    AND (:birdTypeId IS NULL OR p.bird_type_id = :birdTypeId)
-                    AND (:minPrice IS NULL OR p.price >= :minPrice)
-                    AND (:maxPrice IS NULL OR p.price <= :maxPrice)
-                """;
-
-        Query countQuery = em.createNativeQuery(countSql);
-        countQuery.setParameter("name", name);
-        countQuery.setParameter("categoryId", categoryId);
-        countQuery.setParameter("birdTypeId", birdTypeId);
-        countQuery.setParameter("minPrice", minPrice);
-        countQuery.setParameter("maxPrice", maxPrice);
-
-        long total = ((Number) countQuery.getSingleResult()).longValue();
-
-        return new PageImpl<>(dtos, pageable, total);
+        // BỎ HOÀN TOÀN PHẦN ĐẾM (COUNT) VÀ TẠO PageImpl
+        return dtos; // TRẢ VỀ TRỰC TIẾP DANH SÁCH
     }
 
     @Override
     public List<ProductBestSellerDTO> findTop15BestSellers() {
         List<ProductBestSellerDTO> result = new ArrayList<>();
-        
-        String[] categories = {"TOYS", "FURNITURE", "FOODS"};
-        
+
+        String[] categories = { "TOYS", "FURNITURE", "FOODS" };
+
         for (String category : categories) {
             String sql = """
                         SELECT p.id AS productId, p.name AS productName, c.name AS categoryName,
@@ -110,13 +88,13 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                         ORDER BY totalSold DESC
                         LIMIT 5
                     """;
-            
+
             Query query = em.createNativeQuery(sql);
             query.setParameter("category", category);
-            
+
             @SuppressWarnings("unchecked")
             List<Object[]> rows = query.getResultList();
-            
+
             for (Object[] row : rows) {
                 Integer productId = (Integer) row[0];
                 String name = (String) row[1];
@@ -124,11 +102,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                 BigDecimal price = (BigDecimal) row[3];
                 Long totalSold = ((Number) row[4]).longValue();
                 String imageUrl = (String) row[5];
-                
+
                 result.add(new ProductBestSellerDTO(productId, name, categoryName, price, totalSold, imageUrl));
             }
         }
-        
+
         return result;
     }
 

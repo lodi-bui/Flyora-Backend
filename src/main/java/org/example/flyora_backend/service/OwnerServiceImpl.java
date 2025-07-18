@@ -59,7 +59,7 @@ public class OwnerServiceImpl implements OwnerService {
     private PromotionRepository promotionRepository;
     @Autowired
     private ProductReviewRepository productReviewRepository;
-
+    
     @Override
     public List<TopProductDTO> getTopSellingProducts(int accountId) {
         Optional<ShopOwner> shopOwnerOpt = shopOwnerRepository.findByAccountId(accountId);
