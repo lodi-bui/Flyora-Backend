@@ -24,14 +24,16 @@ public class ProductController {
 
     private final ProductService productService;
 
-    @Operation(summary = "Lọc danh sách sản phẩm", description = """
-        Nhận: name (keyword), categoryId, birdTypeId, minPrice, maxPrice, page, size.
-        Trả về danh sách sản phẩm phân trang: content[], totalElements, totalPages, page number, size.
-    """)
+    @Operation(summary = "Lọc và lấy toàn bộ danh sách sản phẩm", description = """
+                Nhận vào các điều kiện lọc trong body.
+                Trả về một danh sách đầy đủ (không phân trang) tất cả các sản phẩm khớp với điều kiện.
+            """)
     @PostMapping("/filter")
     public ResponseEntity<?> filterProducts(@RequestBody ProductFilterDTO request) {
         try {
-            return ResponseEntity.ok(productService.filterProducts(request));
+            // Gọi đến phương thức đã được sửa, giờ nó trả về List
+            List<ProductListDTO> productList = productService.filterProducts(request);
+            return ResponseEntity.ok(productList);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Lỗi xử lý filter: " + e.getMessage());
@@ -44,10 +46,10 @@ public class ProductController {
         return ResponseEntity.ok(productService.getProductDetail(id));
     }
 
-    @Operation(summary = "Lấy sản phẩm bán chạy nhất mỗi danh mục", description = "Trả về sản phẩm có số lượng bán cao nhất của từng danh mục.")
-    @GetMapping("/best-sellers/top1")
-    public ResponseEntity<List<ProductBestSellerDTO>> getTop1BestSellersPerCategory() {
-        return ResponseEntity.ok(productService.getTop1BestSellersPerCategory());
+    @Operation(summary = "Lấy top 15 sản phẩm bán chạy", description = "Trả về top 5 sản phẩm bán chạy nhất từ mỗi danh mục (TOYS, FURNITURE, FOODS).")
+    @GetMapping("/best-sellers/top15")
+    public ResponseEntity<List<ProductBestSellerDTO>> getTop15BestSellers() {
+        return ResponseEntity.ok(productService.getTop15BestSellers());
     }
 
     @Operation(summary = "Tìm sản phẩm theo tên", description = "Tìm kiếm sản phẩm theo từ khóa.")
@@ -60,7 +62,8 @@ public class ProductController {
     @GetMapping("/status")
     public ResponseEntity<ResponseObject> getProductByStatus() {
         try {
-            return ResponseObject.APIResponse(200, "Get Available Product Success", HttpStatus.OK, productService.getProductByStatus());
+            return ResponseObject.APIResponse(200, "Get Available Product Success", HttpStatus.OK,
+                    productService.getProductByStatus());
         } catch (Exception e) {
             return ResponseObject.APIResponse(400, "Get Available Product failed!", HttpStatus.BAD_REQUEST, null);
         }
@@ -70,7 +73,8 @@ public class ProductController {
     @PostMapping("")
     public ResponseEntity<ResponseObject> addProduct(@RequestBody Product product) {
         try {
-            return ResponseObject.APIResponse(200, "Add Product Success", HttpStatus.OK, productService.addProduct(product));
+            return ResponseObject.APIResponse(200, "Add Product Success", HttpStatus.OK,
+                    productService.addProduct(product));
         } catch (Exception e) {
             return ResponseObject.APIResponse(400, "Add Product failed!", HttpStatus.BAD_REQUEST, null);
         }
@@ -80,7 +84,8 @@ public class ProductController {
     @DeleteMapping("")
     public ResponseEntity<ResponseObject> deleteProductById(@RequestParam int id) {
         try {
-            return ResponseObject.APIResponse(200, "Delete Product By ID Success", HttpStatus.OK, productService.deleteProductById(id));
+            return ResponseObject.APIResponse(200, "Delete Product By ID Success", HttpStatus.OK,
+                    productService.deleteProductById(id));
         } catch (Exception e) {
             return ResponseObject.APIResponse(400, "Delete Product By ID failed", HttpStatus.BAD_REQUEST, null);
         }
