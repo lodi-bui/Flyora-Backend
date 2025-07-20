@@ -19,7 +19,6 @@ public class OrderServiceImpl implements OrderService {
 
     // --- CÁC REPOSITORY VÀ SERVICE CẦN THIẾT ---
     private final OrderRepository orderRepository;
-    private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
     private final CustomerRepository customerRepository; // Cần repo này
@@ -29,20 +28,19 @@ public class OrderServiceImpl implements OrderService {
     private final GHNService ghnService; // **QUAN TRỌNG: Inject GHNService**
 
     @Override
-    @Transactional // Đảm bảo việc tạo đơn hàng là một giao dịch
+    @Transactional
     public Map<String, Object> createOrder(CreateOrderDTO dto) {
-        Integer newId = idGeneratorUtil.generateOrderId();
-
+        // 1. Tạo đối tượng Order chính
         Order order = new Order();
-        order.setId(newId);
+        order.setId(idGeneratorUtil.generateOrderId());
 
-        // Lấy Customer đầy đủ từ DB thay vì tạo mới
         Customer customer = customerRepository.findById(dto.getCustomerId())
                 .orElseThrow(() -> new RuntimeException("Customer not found with ID: " + dto.getCustomerId()));
         order.setCustomer(customer);
-        order.setStatus("PENDING"); // Trạng thái chờ thanh toán
+        order.setStatus("PENDING");
         order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
 
+        // 2. Tạo danh sách OrderItem và thiết lập mối quan hệ hai chiều
         List<OrderItem> orderItems = new ArrayList<>();
         for (var itemDTO : dto.getItems()) {
             Product product = productRepository.findById(itemDTO.getProductId())
@@ -53,19 +51,22 @@ public class OrderServiceImpl implements OrderService {
             }
 
             OrderItem orderItem = new OrderItem();
-            orderItem.setId(idGeneratorUtil.generateOrderItemId());
+            orderItem.setId(idGeneratorUtil.generateOrderItemId()); // <-- VẪN CẦN KIỂM TRA LỖI TRÙNG ID Ở ĐÂY
             orderItem.setProduct(product);
             orderItem.setQuantity(itemDTO.getQuantity());
             orderItem.setPrice(product.getPrice());
+
+            // QUAN TRỌNG: Thiết lập mối quan hệ từ OrderItem -> Order
+            orderItem.setOrder(order);
+
             orderItems.add(orderItem);
         }
 
-        Order savedOrder = orderRepository.save(order);
+        // 3. Gán danh sách item cho Order (hoàn thành mối quan hệ hai chiều)
+        order.setOrderDetails(orderItems);
 
-        for (OrderItem item : orderItems) {
-            item.setOrder(savedOrder);
-        }
-        orderItemRepository.saveAll(orderItems);
+        // 4. Chỉ cần lưu Order. JPA sẽ tự động lưu các OrderItem nhờ CascadeType.ALL
+        Order savedOrder = orderRepository.save(order);
 
         return Map.of("orderId", savedOrder.getId(), "status", savedOrder.getStatus());
     }
