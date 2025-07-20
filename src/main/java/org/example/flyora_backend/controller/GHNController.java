@@ -12,7 +12,6 @@ import org.example.flyora_backend.model.Account;
 import org.example.flyora_backend.model.DeliveryNote;
 import org.example.flyora_backend.repository.AccountRepository;
 import org.example.flyora_backend.repository.DeliveryNoteRepository;
-import org.example.flyora_backend.repository.OrderRepository;
 import org.example.flyora_backend.service.GHNService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,8 +36,6 @@ public class GHNController {
     private AccountRepository accountRepository;
     @Autowired
     private DeliveryNoteRepository deliveryNoteRepository; // Inject repo này để kiểm tra bảo mật
-    @Autowired
-    private OrderRepository orderRepository;
 
     private Account verifyAccess(Integer requesterId) {
         Account acc = accountRepository.findById(requesterId)

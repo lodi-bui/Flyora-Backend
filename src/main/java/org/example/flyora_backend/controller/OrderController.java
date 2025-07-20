@@ -77,7 +77,7 @@ public class OrderController {
                 return ResponseEntity.badRequest().body(Map.of("error", "Số tiền thanh toán không hợp lệ."));
             }
 
-            String url = paymentService.createVnPayPayment(request, dto);
+            String url = paymentService.createPayOSPayment(dto.getOrderId());
             return ResponseEntity.ok(Map.of("paymentUrl", url));
 
         } else if (dto.getPaymentMethodId() == 2) { // COD
