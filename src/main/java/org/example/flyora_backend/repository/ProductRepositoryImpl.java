@@ -149,7 +149,7 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
     }
 
     @Override
-    public List<TopProductDTO> findTopSellingProductsByShopOwner(int shopOwnerId) {
+    public List<TopProductDTO> findTopSellingProductsByShopOwner() {
         String sql = """
                     SELECT p.id, p.name, p.price,
                         SUM(oi.quantity) AS totalSold,
@@ -160,13 +160,11 @@ public class ProductRepositoryImpl implements ProductRepositoryCustom {
                     LEFT JOIN ToyDetail td ON p.id = td.product_id AND c.name = 'TOYS'
                     LEFT JOIN FurnitureDetail fud ON p.id = fud.product_id AND c.name = 'FURNITURE'
                     LEFT JOIN OrderItem oi ON p.id = oi.product_id
-                    WHERE p.shop_owner_id = :shopOwnerId
                     GROUP BY p.id, p.name, p.price, imageUrl
                     ORDER BY totalSold DESC
                 """;
 
         Query query = em.createNativeQuery(sql);
-        query.setParameter("shopOwnerId", shopOwnerId);
 
         @SuppressWarnings("unchecked")
         List<Object[]> rows = query.getResultList();

@@ -20,7 +20,7 @@ public interface ProductRepositoryCustom {
 
     List<ProductListDTO> searchByName(String name);
 
-    List<TopProductDTO> findTopSellingProductsByShopOwner(int shopOwnerId);
+    List<TopProductDTO> findTopSellingProductsByShopOwner();
 
     List<OwnerProductListDTO> findAllByShopOwnerIdOrderByIdAsc(int ownerId);
 
