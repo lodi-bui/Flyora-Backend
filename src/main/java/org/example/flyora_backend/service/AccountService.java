@@ -31,6 +31,7 @@ public class AccountService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy role"));
 
         // 1. Tạo tài khoản Account
+        // 1. Tạo tài khoản Account
         Account acc = new Account();
         acc.setId(idGeneratorUtil.generateAccountId());
         acc.setUsername(dto.getUsername());
@@ -38,8 +39,10 @@ public class AccountService {
         acc.setPhone(dto.getPhone());
         acc.setEmail(dto.getEmail());
         acc.setRole(role);
-        acc.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
-        acc.setIsApproved(dto.getIsApproved() != null ? dto.getIsApproved() : false);
+
+        // ✅ Mặc định luôn active & approved
+        acc.setIsActive(true);
+        acc.setIsApproved(true);
 
         // Set approvedBy nếu có
         if (dto.getApprovedBy() != null) {
