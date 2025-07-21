@@ -3,7 +3,6 @@ package org.example.flyora_backend.controller;
 import org.example.flyora_backend.DTOs.WebhookType;
 import org.example.flyora_backend.DTOs.WebhookURL;
 import org.example.flyora_backend.service.PayOSService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +12,6 @@ public class PayOsController {
 
     private final PayOSService payOSService;
 
-    @Autowired
     public PayOsController(PayOSService payOSService) {
         this.payOSService = payOSService;
     }
