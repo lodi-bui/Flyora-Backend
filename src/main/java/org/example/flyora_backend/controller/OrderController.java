@@ -9,7 +9,8 @@ import org.example.flyora_backend.DTOs.OrderHistoryDTO;
 import org.example.flyora_backend.service.AccessLogService;
 import org.example.flyora_backend.service.OrderService;
 import org.example.flyora_backend.service.PaymentService;
-import org.example.flyora_backend.utils.VNPayUtil;
+import org.example.flyora_backend.Utils.VNPayUtil;
+import org.example.flyora_backend.model.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -66,23 +67,36 @@ public class OrderController {
             - **Các trường địa chỉ (bắt buộc cho COD):** `to_name`, `to_phone`, `to_address`, `to_ward_code`, `to_district_id`.
 
             🔁 **Hành vi và Kết quả trả về:**
-            - **Với VNPay (1):** Trả về một `paymentUrl` để frontend chuyển hướng người dùng. **Việc giao hàng sẽ được kích hoạt ở API callback.**
+            - **Với Payos (1):** Trả về một `paymentUrl` để frontend chuyển hướng người dùng. **Việc giao hàng sẽ được kích hoạt ở API callback.**
             - **Với COD (2):** **Hệ thống sẽ tự động gọi GHN để tạo đơn vận chuyển, sau đó lưu mã vận đơn và cập nhật trạng thái đơn hàng thành "Shipping".** Trả về `paymentId` và `orderStatus`.
             """)
     public ResponseEntity<?> createOrRedirectPayment(@RequestBody CreatePaymentDTO dto, HttpServletRequest request) {
         accessLogService.logAction(dto.getCustomerId(), "Thanh toán đơn hàng");
 
-        if (dto.getPaymentMethodId() == 1) { // VNPay
+        if (dto.getPaymentMethodId() == 1) { // VNPay (PayOS trong thực tế)
             if (dto.getAmount() == null || dto.getAmount() <= 0) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Số tiền thanh toán không hợp lệ."));
             }
 
-            String url = paymentService.createPayOSPayment(dto.getOrderId());
-            return ResponseEntity.ok(Map.of("paymentUrl", url));
+            try {
+                Map<String, String> result = paymentService.createPayOSPayment(dto.getOrderId(), dto.getAmount());
+                String url = result.get("paymentUrl");
+                String payosOrderCode = result.get("orderCode");
+
+                // ✅ Gán orderCode từ PayOS vào DB
+                orderService.attachOrderCode(dto.getOrderId(), payosOrderCode);
+
+                return ResponseEntity.ok(Map.of(
+                        "paymentUrl", url,
+                        "orderCode", payosOrderCode));
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return ResponseEntity.status(500).body(Map.of("error", "Lỗi hệ thống: " + ex.getMessage()));
+            }
 
         } else if (dto.getPaymentMethodId() == 2) { // COD
             return ResponseEntity.ok(orderService.createPayment(dto));
-
         } else {
             return ResponseEntity.badRequest().body(Map.of("error", "Phương thức thanh toán không hợp lệ."));
         }
@@ -123,4 +137,25 @@ public class OrderController {
         accessLogService.logAction(customerId, "Xem lịch sử đơn hàng");
         return ResponseEntity.ok(orderService.getOrdersByCustomer(customerId));
     }
+
+    @GetMapping("/payment/cancel")
+    public ResponseEntity<?> handleCancelledPayment(@RequestParam String orderCode) {
+        Order order = orderService.getOrderByCode(orderCode);
+        if (order == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Không tìm thấy đơn hàng."));
+        }
+
+        if (!"PAID".equalsIgnoreCase(order.getStatus())) {
+            order.setStatus("CANCELLED");
+            orderService.save(order);
+            return ResponseEntity.ok(Map.of(
+                    "orderCode", orderCode,
+                    "status", "CANCELLED"));
+        } else {
+            return ResponseEntity.ok(Map.of(
+                    "orderCode", orderCode,
+                    "status", "PAID"));
+        }
+    }
+
 }

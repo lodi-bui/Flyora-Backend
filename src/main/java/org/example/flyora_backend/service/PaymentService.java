@@ -1,6 +1,9 @@
 package org.example.flyora_backend.service;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.Map;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -9,9 +12,7 @@ public class PaymentService {
 
     private final PayOSService payOSService;
 
-    public String createPayOSPayment(int orderId) {
-        // Gọi sang service PayOS để tạo link thanh toán
-        return payOSService.createPaymentLink(orderId).toString();
+    public Map<String, String> createPayOSPayment(int orderId, int amount) {
+        return payOSService.createPaymentLink(orderId, amount);
     }
-
 }
