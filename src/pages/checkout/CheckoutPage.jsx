@@ -28,6 +28,7 @@ const CheckoutPage = () => {
 
   // 2) Giỏ hàng
   const [items, setItems] = useState([]);
+
   useEffect(() => {
     const fetchCart = async () => {
       const rawCart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -80,6 +81,7 @@ const CheckoutPage = () => {
   // 5) Đặt hàng thành công với COD → redirect confirm
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState(null);
+  const [payUrl, setPayUrl] = useState(null);
 
   // Mã đơn mô phỏng, về sau lấy từ backend trả về
 
@@ -153,9 +155,30 @@ const CheckoutPage = () => {
       // 3. Gọi API thanh toán
 
       // 4. Xử lý kết quả theo phương thức thanh toán
+      // if (paymentMethodId === 1) {
+      //   // PayOnline → chỉ hiển thị màn PayOnline
+      //   setShowPayOnline(true); // <-- CHỈ hiển thị màn QR code
+      // } else {
+      //   // COD → tạo đơn vận chuyển
+      //   const payRes = await createPayment(paymentData);
+      //   setSuccess(true);
+      //   localStorage.removeItem("cart");
+      // }
+      // ...
+
       if (paymentMethodId === 1) {
-        // PayOnline → chỉ hiển thị màn PayOnline
-        setShowPayOnline(true); // <-- CHỈ hiển thị màn QR code
+        const payRes = await createPayment(paymentData);
+
+        const payUrl = payRes?.paymentUrl || payRes?.payUrl || payRes?.url;
+
+        if (!payUrl) throw new Error("Không nhận được link thanh toán từ API.");
+
+        setShowPayOnline(true);
+        setOrderId(newOrderId); // vẫn set để truyền cho PayOnline
+        localStorage.removeItem("cart");
+
+        // Truyền thêm payUrl qua state
+        setPayUrl(payUrl);
       } else {
         // COD → tạo đơn vận chuyển
         const payRes = await createPayment(paymentData);
@@ -181,13 +204,8 @@ const CheckoutPage = () => {
       <Header />
 
       <div className="max-w-6xl mx-auto py-12 px-4 lg:px-0">
-        {/* Nếu đang ở màn VNPAY, chỉ render PayOnline */}
         {showPayOnline ? (
-          <PayOnline
-            total={total}
-            orderId={orderId}
-            onCancel={() => setShowPayOnline(false)}
-          />
+          <PayOnline payUrl={payUrl} onCancel={() => setShowPayOnline(false)} />
         ) : (
           // Màn form Checkout bình thường
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-8 lg:gap-x-[38px]">
