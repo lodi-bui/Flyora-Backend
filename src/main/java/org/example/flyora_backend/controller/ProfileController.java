@@ -6,7 +6,7 @@ import org.example.flyora_backend.DTOs.UpdateProfileDTO;
 import org.example.flyora_backend.model.Account;
 import org.example.flyora_backend.service.AccessLogService;
 import org.example.flyora_backend.service.ProfileService;
-import org.example.flyora_backend.utils.JwtUtil;
+import org.example.flyora_backend.Utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

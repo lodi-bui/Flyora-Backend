@@ -6,6 +6,8 @@ import org.example.flyora_backend.service.PayOSService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import lombok.RequiredArgsConstructor;
+
 @RestController
 @RequestMapping("/api/payos")
 public class PayOsController {
@@ -17,8 +19,9 @@ public class PayOsController {
     }
 
     @PostMapping("/create-link/{orderId}")
-    public ResponseEntity<Object> createPaymentLink(@PathVariable int orderId) {
-        Object paymentLink = payOSService.createPaymentLink(orderId);
+    public ResponseEntity<Object> createPaymentLink(@PathVariable int orderId,
+            @RequestParam(required = false) Integer amount) {
+        Object paymentLink = payOSService.createPaymentLink(orderId, amount != null ? amount : 0);
         return ResponseEntity.ok(paymentLink);
     }
 
@@ -28,13 +31,18 @@ public class PayOsController {
         return ResponseEntity.ok(result);
     }
 
-    @PostMapping("/webhook")
-    public ResponseEntity<Void> handleWebhook(@RequestBody WebhookType webhookData) {
-        try {
+    @RestController
+    @RequestMapping("/api/payos")
+    @RequiredArgsConstructor
+    public class PayOSWebhookController {
+
+        private final PayOSService payOSService;
+
+        @PostMapping("/webhook")
+        public ResponseEntity<String> handleWebhook(@RequestBody WebhookType webhookData) {
             payOSService.handlePaymentWebhook(webhookData);
-            return ResponseEntity.ok().build();
-        } catch (Exception ex) {
-            throw new RuntimeException("Error handling webhook", ex);
+            return ResponseEntity.ok("Webhook received");
         }
     }
+
 }

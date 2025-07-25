@@ -15,7 +15,9 @@ import java.util.List;
 public class Order {
     @Id
     private Integer id;
-
+    @Column(name = "code")
+    private String orderCode;
+    
     @Column(name = "created_at")
     private Timestamp createdAt;
 
@@ -30,4 +32,6 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderDetails;
+
+    
 }
