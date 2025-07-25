@@ -9,4 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatBotRepository extends JpaRepository<ChatBot, Integer> {
     List<ChatBot> findByCustomer_IdOrderByCreatedAtDesc(Integer customerId);
+
+    void deleteByCustomerId(Integer customerId);
+
 }

@@ -23,4 +23,6 @@ public interface ProductReviewRepository extends JpaRepository<ProductReview, In
            "JOIN r.product p " + // Join bình thường, không FETCH product
            "WHERE p.id = :productId")
     List<ProductReview> findByProductIdWithCustomer(@Param("productId") Integer productId);
+
+    void deleteByCustomerId(Integer customerId);
 }
