@@ -44,6 +44,13 @@ const AddProduct = () => {
     } finally {
       setLoading(false);
     }
+
+    //kiểm tra không cho nhập số âm
+    if (product.price < 0 || product.stock < 0) {
+      alert('Giá và số lượng tồn kho không được là số âm!');
+      setLoading(false);
+      return;
+    }
   };
 
   const handleCancel = () => {
@@ -91,6 +98,9 @@ const AddProduct = () => {
                   onChange={handleChange}
                   placeholder="Giá"
                   className="p-3 border border-gray-300 rounded-lg"
+                  onInvalid={(e) => e.target.setCustomValidity("Giá phải lớn hơn hoặc bằng 0")}
+                  onInput={(e) => e.target.setCustomValidity("")}
+                  min="0"
                   required
                 />
               </div>
@@ -103,6 +113,9 @@ const AddProduct = () => {
                   onChange={handleChange}
                   placeholder="Tồn kho"
                   className="p-3 border border-gray-300 rounded-lg"
+                  onInvalid={(e) => e.target.setCustomValidity("Số lượng tồn kho phải lớn hơn hoặc bằng 0")}
+                  onInput={(e) => e.target.setCustomValidity("")}
+                  min="0"
                   required
                 />
               </div>

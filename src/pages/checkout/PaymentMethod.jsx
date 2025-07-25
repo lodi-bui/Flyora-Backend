@@ -1,6 +1,10 @@
 import React from "react";
 import { FaTruck } from "react-icons/fa";
+
+import Payos from "../../icons/payos.png"; // Assuming you have this image in your icons folder
+
 import { FaCreditCard } from "react-icons/fa";
+
 
 const PaymentMethod = ({ method, onChange }) => (
   <div className="bg-white p-6 rounded-lg shadow">
@@ -9,6 +13,7 @@ const PaymentMethod = ({ method, onChange }) => (
       <label className="flex items-center border p-4 rounded-lg cursor-pointer">
         <input
           type="radio"
+
           value="payonline"
           checked={method === "payonline"}
           onChange={onChange}

@@ -1,11 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { LogOut, BarChart3, Package, Edit2, Trash2 } from "lucide-react";
-import { useAuthCart } from '../../../context/AuthCartContext';
+import { useAuthCart } from "../../../context/AuthCartContext";
 import { useNavigate } from "react-router-dom";
-import { getProductOwners } from 'api/ShopOwnerProduct';
-import { deleteProduct } from 'api/DeleteProduct';
-
-const ITEMS_PER_PAGE = 8;
+import { getProductOwners } from "api/ShopOwnerProduct";
+import { deleteProduct } from "api/DeleteProduct";
 
 // Utility function to format currency
 const formatCurrency = (amount) => {
@@ -51,7 +49,7 @@ const ProductManagement = () => {
             image: p.imageUrl,
             price: p.price,
             stock: p.stock,
-            status: p.status // "Còn hàng" hoặc "Hết hàng"
+            status: p.status, // "Còn hàng" hoặc "Hết hàng"
           }));
           setProducts(mapped);
         }
@@ -84,7 +82,7 @@ const ProductManagement = () => {
 
   // Sửa lại hàm getStatusBadge cho tiếng Việt
   const getStatusBadge = (status) => {
-    if (status === 'Còn hàng') {
+    if (status === "Còn hàng") {
       return (
         <span className="inline-flex items-center justify-center w-20 px-3 py-1 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-full whitespace-nowrap">
           {status}
@@ -166,9 +164,10 @@ const ProductManagement = () => {
         <header className="bg-white shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between px-6 py-4">
             <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold text-gray-900">Quản lý sản phẩm</h1>
+              <h1 className="text-xl font-semibold text-gray-900">
+                Quản lý sản phẩm
+              </h1>
             </div>
-            
           </div>
         </header>
 
@@ -177,10 +176,19 @@ const ProductManagement = () => {
           <div className="bg-white rounded-lg shadow">
             {/* Products Header */}
             <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">Danh sách sản phẩm</h2>
+              <h2 className="text-lg font-semibold text-gray-900">
+                Danh sách sản phẩm
+              </h2>
               <button
                 className="flex items-center px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
-                onClick={() => navigate('/shopowner/add-product')}
+                onClick={() => {
+                  const role = localStorage.getItem("role");
+                  if (role !== "ShopOwner") {
+                    alert("Vai trò không hợp lệ!");
+                    return;
+                  }
+                  navigate("/shopowner/add-product");
+                }}
               >
                 <span className="mr-2">+</span>
                 Thêm sản phẩm
@@ -192,13 +200,27 @@ const ProductManagement = () => {
               <table className="w-full table-fixed">
                 <thead className="bg-gray-50 text-center">
                   <tr>
-                    <th className="w-[50px] px-2 py-3 text-sm font-medium text-gray-700">ID</th>
-                    <th className="w-[200px] px-2 py-3 text-sm font-medium text-gray-700">Tên sản phẩm</th>
-                    <th className="w-[100px] px-2 py-3 text-sm font-medium text-gray-700">Ảnh</th>
-                    <th className="w-[120px] px-2 py-3 text-sm font-medium text-gray-700">Giá</th>
-                    <th className="w-[120px] px-2 py-3 text-sm font-medium text-gray-700">Tồn kho</th>
-                    <th className="w-[120px] px-2 py-3 text-sm font-medium text-gray-700">Trạng thái</th>
-                    <th className="w-[120px] px-2 py-3 text-sm font-medium text-gray-700">Thao tác</th>
+                    <th className="w-[50px] px-2 py-3 text-sm font-medium text-gray-700">
+                      ID
+                    </th>
+                    <th className="w-[200px] px-2 py-3 text-sm font-medium text-gray-700">
+                      Tên sản phẩm
+                    </th>
+                    <th className="w-[100px] px-2 py-3 text-sm font-medium text-gray-700">
+                      Ảnh
+                    </th>
+                    <th className="w-[120px] px-2 py-3 text-sm font-medium text-gray-700">
+                      Giá
+                    </th>
+                    <th className="w-[120px] px-2 py-3 text-sm font-medium text-gray-700">
+                      Tồn kho
+                    </th>
+                    <th className="w-[120px] px-2 py-3 text-sm font-medium text-gray-700">
+                      Trạng thái
+                    </th>
+                    <th className="w-[120px] px-2 py-3 text-sm font-medium text-gray-700">
+                      Thao tác
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200 text-center">
@@ -213,20 +235,33 @@ const ProductManagement = () => {
                           className="w-12 h-12 object-contain mx-auto rounded"
                         />
                       </td>
-                      <td className="px-6 py-4 text-gray-700">{formatCurrency(product.price)}</td>
+                      <td className="px-6 py-4 text-gray-700">
+                        {formatCurrency(product.price)}
+                      </td>
                       <td className="px-6 py-4">{product.stock}</td>
-                      <td className="px-6 py-4">{getStatusBadge(product.status)}</td>
+                      <td className="px-6 py-4">
+                        {getStatusBadge(product.status)}
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-500">
                         <div className="flex items-center justify-center space-x-2">
                           <button
                             className="p-2 rounded hover:bg-gray-100"
-                            onClick={() => navigate(`/shopowner/edit-product/${product.id}`)}
+                            onClick={() =>
+                              navigate(`/shopowner/edit-product/${product.id}`)
+                            }
                           >
                             <Edit2 className="w-5 h-5 text-blue-600" />
                           </button>
                           <button
                             className="p-2 rounded hover:bg-gray-100"
-                            onClick={() => handleDelete(product.id)}
+                            onClick={() => {
+                              const role = localStorage.getItem("role");
+                              if (role !== "ShopOwner") {
+                                alert("Vai trò không hợp lệ!");
+                                return;
+                              }
+                              handleDelete(product.id);
+                            }}
                           >
                             <Trash2 className="w-5 h-5 text-red-600" />
                           </button>

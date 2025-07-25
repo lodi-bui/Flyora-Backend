@@ -66,7 +66,7 @@ const Login = () => {
 
           if (role === "Admin") {
             navigate("/admin-page");
-          } else if (role === "ShopOwner") {
+          } else if (role === "ShopOwner" || role === "SalesStaff") {
             navigate("/shopowner");
           } else {
             navigate("/");

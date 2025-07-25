@@ -34,6 +34,7 @@ const AddAccount = ({ newUser, setNewUser, onCreate, onClose }) => {
     });
   };
 
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50">
       <div className="bg-white rounded-lg shadow-lg p-6 w-[500px] max-h-[90vh] overflow-y-auto">
@@ -45,6 +46,8 @@ const AddAccount = ({ newUser, setNewUser, onCreate, onClose }) => {
             ["Email", "email", "email"],
             ["Phone", "text", "phone"],
             ["Name", "text", "name"],
+
+
           ].map(([label, type, field]) => (
             <div key={field}>
               <label className="block text-sm font-medium text-gray-700">
@@ -75,6 +78,7 @@ const AddAccount = ({ newUser, setNewUser, onCreate, onClose }) => {
               <option value="4">Customer</option>
             </select>
           </div>
+
 
           {newUser.roleId === 2 && (
             <div>
@@ -129,6 +133,7 @@ const AddAccount = ({ newUser, setNewUser, onCreate, onClose }) => {
           >
             Create
           </button>
+
         </div>
       </div>
     </div>

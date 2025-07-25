@@ -36,6 +36,7 @@ const addToCart = (id, quantity = 1) => {
     localStorage.setItem("user", JSON.stringify(userData)); // Lưu user
     localStorage.setItem("linkedId", userData.linkedId); // Lưu linkedId
     localStorage.setItem("token", userData.token); // Lưu token
+    localStorage.setItem("role", userData.role); // Lưu role
     updateCartCountFromLocalStorage(); // Cập nhật cartCount từ localStorage
   };
   const logout = () => {

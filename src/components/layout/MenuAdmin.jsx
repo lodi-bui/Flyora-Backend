@@ -7,12 +7,10 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
-import logo from "../../icons/logo_white.png";
 
 const MenuAdmin = () => {
   return (
     <aside className="w-64 min-h-screen bg-gradient-to-b from-[#12AB3C] to-[#083622] text-white p-4">
-      <img src={logo} alt="Flyora Logo" className="h-10 mb-8" />
       <nav className="space-y-2">
         <NavLink
           to="/users"

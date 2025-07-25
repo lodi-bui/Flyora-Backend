@@ -16,6 +16,7 @@ import NewsPage from "./pages/news/NewsPage";
 import CartPage from "./pages/cart/CartPage";
 import ProductDetails from "./pages/ProductDetails/ProductDetails";
 
+import PromotionPage from "./pages/promotion/PromotionPage";
 import OrderHistoryPage from "./pages/order/OrderHistoryPage";
 import OrderDetailsPage from "./pages/order/OrderDetailsPage";
 import ProfilePage from "./pages/profile/ProfilePage";
@@ -28,6 +29,7 @@ import PromotionPage from "pages/promotion/PromotionPage";
 
 import UserManagement from "./pages/admin/userMgm/UserManagement";
 import ContentPage from "./pages/admin/content/ContentPage";
+import UserActivityLogPage from "pages/admin/systemManagement/userLog/UserActivityLogPage";
 
 import ProductManagement from "./pages/shopOwner/product/ProductManagement";
 import AddProduct from "pages/shopOwner/product/AddProduct";

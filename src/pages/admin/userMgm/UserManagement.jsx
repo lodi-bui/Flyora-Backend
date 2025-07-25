@@ -101,9 +101,7 @@ const UserManagement = () => {
   };
 
   const handleDeleteUser = async (userId) => {
-    const confirmDelete = window.confirm(
-      "Bạn có chắc muốn xóa người dùng này?"
-    );
+    const confirmDelete = window.confirm("Bạn có chắc muốn xóa người dùng này?");
     if (!confirmDelete) return;
 
     try {
@@ -145,11 +143,10 @@ const UserManagement = () => {
   };
 
   useEffect(() => {
-    if (!user) return; // đợi user được load xong
-    if (!requesterId) {
-      toast.error("Vui lòng đăng nhập để quản lý người dùng");
-      return;
-    }
+if (!user || !requesterId) {
+    toast.error("Vui lòng đăng nhập để quản lý người dùng");
+    return;
+  }
 
     const fetchUsers = async () => {
       try {
@@ -198,6 +195,7 @@ const UserManagement = () => {
         {/* Sidebar */}
         <Sidebar />
       </div>
+
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
