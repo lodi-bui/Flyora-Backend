@@ -13,4 +13,5 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
     Optional<Integer> findMaxId(); // 👉 để tạo id thủ công
 
     void deleteByAccountId(Integer accountId);
+
 }

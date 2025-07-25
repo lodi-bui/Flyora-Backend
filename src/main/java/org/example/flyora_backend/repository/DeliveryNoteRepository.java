@@ -11,4 +11,6 @@ public interface DeliveryNoteRepository extends JpaRepository<DeliveryNote, Inte
     Optional<Integer> findMaxId();
 
     Optional<DeliveryNote> findByTrackingNumber(String trackingNumber);
+
+    void deleteByOrderId(Integer orderId);
 }

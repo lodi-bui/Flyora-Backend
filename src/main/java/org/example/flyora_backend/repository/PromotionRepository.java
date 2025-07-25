@@ -9,4 +9,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Integer> {
     List<Promotion> findByCustomer_Id(Integer customerId);
 
     void deleteAllByProductId(Integer productId);
+
+    void deleteByCustomerId(Integer customerId);
+
 }
