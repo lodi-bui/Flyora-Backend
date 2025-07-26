@@ -1,7 +1,8 @@
 import axios from "axios";
-const BASE = "https://flyora-backend.onrender.com/api";
+const BASE = "https://flyora-backend.onrender.com/api/payos";
 
-export const createPayOSLink = async (orderId) => {
-  const res = await axios.post(`${BASE}/payos/create-link/${orderId}`);
+export const createPayOSLink = async (orderId, amount) => {
+  const res = await axios.post(`${BASE}/create-link/${orderId}?amount=${amount}`);
+  // const res = await axios.post(`${BASE}/create-link/${orderId}`, { amount });
   return res.data;
 };
