@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.flyora_backend.DTOs.WebhookType;
 import org.example.flyora_backend.DTOs.WebhookURL;
 import org.example.flyora_backend.model.Order;
+import org.example.flyora_backend.model.OrderItem;
+import org.example.flyora_backend.model.Product;
 import org.example.flyora_backend.repository.OrderRepository;
+import org.example.flyora_backend.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
@@ -21,6 +24,7 @@ public class PayOSServiceImpl implements PayOSService {
 
     private final PayOS payOS;
     private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public Map<String, String> createPaymentLink(int orderId, int amount) {
@@ -35,7 +39,7 @@ public class PayOSServiceImpl implements PayOSService {
                     .orderCode(Long.parseLong(orderCode)) // phải là Long hợp lệ
                     .amount(amount)
                     .description(orderCode)
-                    .returnUrl("https://localhost:3000")
+                    .returnUrl("https://flyora-frontend.vercel.app/")
                     .cancelUrl("http://127.0.0.1:5500/cancel.html")
                     .build();
 
@@ -71,6 +75,13 @@ public class PayOSServiceImpl implements PayOSService {
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy đơn hàng với orderCode: " + orderCode));
 
             if (!"PAID".equalsIgnoreCase(order.getStatus())) {
+
+                for (OrderItem item : order.getOrderDetails()) {
+                    Product product = item.getProduct();
+                    product.setStock(product.getStock() - item.getQuantity());
+                    productRepository.save(product);
+                }
+
                 order.setStatus("PAID");
                 orderRepository.save(order);
                 log.info("✅ Đã cập nhật đơn hàng [{}] sang trạng thái PAID", orderCode);
@@ -90,8 +101,6 @@ public class PayOSServiceImpl implements PayOSService {
         }
 
     }
-
-    
 
     @Override
     public String confirmWebhook(WebhookURL body) {
