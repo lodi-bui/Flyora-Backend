@@ -13,4 +13,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @Query("SELECT MAX(o.id) FROM Order o")
     Optional<Integer> findMaxId();
 
+    Optional<Order> findByOrderCode(String orderCode);
+
 }
