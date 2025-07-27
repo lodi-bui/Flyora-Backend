@@ -1,3 +1,4 @@
+
     package org.example.flyora_backend.service;
 
     import java.util.List;
@@ -61,6 +62,7 @@
         @Override
         public List<TopProductDTO> getTopSellingProducts() {
             return productRepository.findTopSellingProductsByShopOwner();
+
         }
 
         @Override
