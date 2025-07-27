@@ -4,7 +4,7 @@ import { Percent, Copy, Check, Truck, Clock } from "lucide-react";
 
 const vouchers = [
   {
-    id: "PRODUCT10",
+    id: "SALE10",
     title: "Giảm 10% sản phẩm",
     typeLabel: "Sản phẩm",
     percent: 10,
@@ -22,7 +22,43 @@ const vouchers = [
   },
 
   {
-    id: "PRODUCT15",
+    id: "SALE20",
+    title: "Giảm 15% sản phẩm",
+    typeLabel: "Sản phẩm",
+    percent: 15,
+    color: "orange",
+    gradient: "from-orange-500 via-orange-400 to-orange-500",
+    ring: "ring-orange-300/60",
+    iconBg: "bg-orange-500/10",
+    iconColor: "text-orange-500",
+    description: "Tối đa 300.000₫ cho đơn từ 500.000₫.",
+    minOrder: 500000,
+    maxDiscount: 300000,
+    expire: "2025-09-15T23:59:59+07:00",
+    usesLeft: 80,
+    usesTotal: 400,
+  },
+
+  {
+    id: "SALE50",
+    title: "Giảm 15% sản phẩm",
+    typeLabel: "Sản phẩm",
+    percent: 15,
+    color: "orange",
+    gradient: "from-orange-500 via-orange-400 to-orange-500",
+    ring: "ring-orange-300/60",
+    iconBg: "bg-orange-500/10",
+    iconColor: "text-orange-500",
+    description: "Tối đa 300.000₫ cho đơn từ 500.000₫.",
+    minOrder: 500000,
+    maxDiscount: 300000,
+    expire: "2025-09-15T23:59:59+07:00",
+    usesLeft: 80,
+    usesTotal: 400,
+  },
+
+ {
+    id: "SALE50",
     title: "Giảm 15% sản phẩm",
     typeLabel: "Sản phẩm",
     percent: 15,

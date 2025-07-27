@@ -68,7 +68,6 @@ const UserActivityLog = () => {
   };
 
   return (
-
     <div className="flex-1 flex flex-col bg-gray-50">
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="flex items-center justify-between px-6 py-4">
@@ -104,7 +103,6 @@ const UserActivityLog = () => {
                   <div className="text-xs text-gray-500">Super Admin</div>
                 </div>
               </div> */}
-            </div>
           </div>
         </div>
       </header>
@@ -155,44 +153,23 @@ const UserActivityLog = () => {
                       {log.action}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {log.timestamp}
+                      {new Date(log.timestamp)
+                        .toLocaleString("vi-VN", {
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
+                        })
+                        .replace(", ", "")}
                     </td>
                   </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedLogs.map((log, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {log.accountId}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {log.username}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {log.action}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {new Date(log.timestamp)
-                          .toLocaleString("vi-VN", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                            second: "2-digit",
-                            hour12: false,
-                          })
-                          .replace(", ", "")}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination */}
           <div className="flex flex-col items-center px-6 py-4 border-t border-gray-200 space-y-2">
@@ -206,9 +183,7 @@ const UserActivityLog = () => {
                     ? "text-gray-300 cursor-not-allowed"
                     : "text-gray-500 hover:bg-gray-100"
                 }`}
-                onClick={() =>
-                  setCurrentPage((prev) => Math.max(prev - 1, 1))
-                }
+                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
               >
                 ←
@@ -252,11 +227,9 @@ const UserActivityLog = () => {
               </button>
             </div>
           </div>
-
         </div>
       </main>
     </div>
-
   );
 };
 
