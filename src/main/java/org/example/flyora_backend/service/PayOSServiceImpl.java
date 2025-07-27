@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.flyora_backend.DTOs.WebhookType;
 import org.example.flyora_backend.DTOs.WebhookURL;
 import org.example.flyora_backend.model.Order;
+
 import org.example.flyora_backend.repository.OrderRepository;
+
 import org.springframework.stereotype.Service;
 import vn.payos.PayOS;
 import vn.payos.type.CheckoutResponseData;
@@ -22,6 +24,7 @@ public class PayOSServiceImpl implements PayOSService {
     private final PayOS payOS;
     private final OrderRepository orderRepository;
 
+
     @Override
     public Map<String, String> createPaymentLink(int orderId, int amount) {
         // ❌ Đừng tạo orderCode mới ở đây
@@ -35,7 +38,9 @@ public class PayOSServiceImpl implements PayOSService {
                     .orderCode(Long.parseLong(orderCode)) // phải là Long hợp lệ
                     .amount(amount)
                     .description(orderCode)
+
                     .returnUrl("https://localhost:3000")
+
                     .cancelUrl("http://127.0.0.1:5500/cancel.html")
                     .build();
 
@@ -53,15 +58,18 @@ public class PayOSServiceImpl implements PayOSService {
 
     @Override
     public void handlePaymentWebhook(WebhookType webhookData) {
+
         log.info("📩 Dữ liệu webhook: {}", webhookData);
 
         WebhookData data = webhookData.getData();
         if (data == null || data.getOrderCode() == 0) {
             log.error("❌ Thiếu orderCode trong webhook");
+
             return;
         }
 
         String orderCode = String.valueOf(data.getOrderCode());
+
         String statusCode = webhookData.getCode();
         boolean success = webhookData.isSuccess();
 
@@ -89,6 +97,7 @@ public class PayOSServiceImpl implements PayOSService {
         } catch (Exception e) {
             log.error("❌ Lỗi cập nhật đơn hàng theo webhook: {}", e.getMessage(), e);
         }
+
     }
 
     

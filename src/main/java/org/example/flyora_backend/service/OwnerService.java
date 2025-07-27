@@ -8,7 +8,7 @@ import org.example.flyora_backend.DTOs.TopProductDTO;
 import org.example.flyora_backend.model.Product;
 
 public interface OwnerService {
-    List<TopProductDTO> getTopSellingProducts(int accountId);
+    List<TopProductDTO> getTopSellingProducts();
 
     public Product createProduct(CreateProductDTO dto, Integer accountId);
 
@@ -18,5 +18,5 @@ public interface OwnerService {
 
     public void deleteProduct(Integer productId, Integer accountId);
     
-    List<OwnerProductListDTO> searchProductsByOwner(int accountId, String keyword);
+    List<OwnerProductListDTO> searchProductsByOwner(String keyword);
 }

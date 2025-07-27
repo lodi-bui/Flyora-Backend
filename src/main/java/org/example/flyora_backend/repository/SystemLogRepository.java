@@ -18,4 +18,7 @@ public interface SystemLogRepository extends JpaRepository<SystemLog, Integer> {
 
     @Query("SELECT MAX(f.id) FROM SystemLog f")
     Optional<Integer> findMaxId();
+
+    void deleteByAdminAccountId(Integer accountId);
+
 }

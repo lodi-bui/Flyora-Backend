@@ -29,4 +29,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     }
 
     boolean existsByProductId(Integer productId);
+
+    void deleteAllByProductId(Integer productId);
+    
+    void deleteByOrderId(Integer orderId);
 }

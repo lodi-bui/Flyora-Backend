@@ -24,12 +24,26 @@ public class AccountService {
     private final SalesStaffRepository salesStaffRepository;
     private final IdGeneratorUtil idGeneratorUtil;
     private final AccessLogRepository accessLogRepository;
+    private final NotificationRepository notificationRepository;
+    private final ProductReviewRepository productReviewRepository;
+    private final ChatBotRepository chatBotRepository;
+    private final IssueReportRepository issueReportRepository;
+    private final PromotionRepository promotionRepository;
+    private final PaymentRepository paymentRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final OrderRepository orderRepository;
+    private final DeliveryNoteRepository deliveryNoteRepository;
+    private final InventoryRepository inventoryRepository;
+    private final SystemLogRepository systemLogRepository;
+    private final FaqRepository faqRepository;
+    private final PolicyRepository policyRepository;
 
     @Transactional
     public Account createAccount(AccountDTO dto) {
         Role role = roleRepository.findById(dto.getRoleId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy role"));
 
+        // 1. Tạo tài khoản Account
         // 1. Tạo tài khoản Account
         Account acc = new Account();
         acc.setId(idGeneratorUtil.generateAccountId());
@@ -38,8 +52,10 @@ public class AccountService {
         acc.setPhone(dto.getPhone());
         acc.setEmail(dto.getEmail());
         acc.setRole(role);
-        acc.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
-        acc.setIsApproved(dto.getIsApproved() != null ? dto.getIsApproved() : false);
+
+        // ✅ Mặc định luôn active & approved
+        acc.setIsActive(true);
+        acc.setIsApproved(true);
 
         // Set approvedBy nếu có
         if (dto.getApprovedBy() != null) {
@@ -128,18 +144,57 @@ public class AccountService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
 
-        // ✅ Xóa tất cả access log liên quan trước
-        accessLogRepository.deleteByAccountId(id);
+        String role = account.getRole().getName();
 
-        // ✅ Xóa entity phụ thuộc
-        switch (account.getRole().getName()) {
-            case "Customer" -> customerRepository.deleteByAccountId(id);
-            case "ShopOwner" -> shopOwnerRepository.deleteByAccountId(id);
-            case "SalesStaff" -> salesStaffRepository.deleteByAccountId(id);
-            case "Admin" -> adminRepository.deleteByAccountId(id);
+        // ✅ Xóa access log & notification liên quan
+        accessLogRepository.deleteByAccountId(id);
+        notificationRepository.deleteByRecipientId(id);
+
+        // ✅ Nếu là CUSTOMER, xóa theo thứ tự phụ thuộc
+        if ("Customer".equals(role)) {
+            Customer customer = customerRepository.findByAccountId(id)
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy customer liên kết với account"));
+
+            Integer customerId = customer.getId();
+            // 1. ProductReview → ChatBot → IssueReport → Promotion
+            productReviewRepository.deleteByCustomerId(customerId);
+            chatBotRepository.deleteByCustomerId(customerId);
+            issueReportRepository.deleteByCustomerId(customerId);
+            promotionRepository.deleteByCustomerId(customerId);
+
+            // 2. Payment
+            paymentRepository.deleteByCustomerId(customerId);
+
+            // 3. OrderItem → DeliveryNote → Order
+            List<Integer> orderIds = orderRepository.findIdsByCustomerId(customerId);
+            for (Integer orderId : orderIds) {
+                orderItemRepository.deleteByOrderId(orderId);
+                deliveryNoteRepository.deleteByOrderId(orderId);
+            }
+            orderRepository.deleteByCustomerId(customerId);
+
+            // 4. Xóa bản ghi Customer
+            customerRepository.deleteByAccountId(id);
         }
 
-        // ✅ Cuối cùng xóa chính Account
+        // ✅ Các vai trò khác: đơn giản hơn
+        else if ("ShopOwner".equals(role)) {
+            shopOwnerRepository.deleteByAccountId(id);
+        } else if ("SalesStaff".equals(role)) {
+            // Gọi phương thức mới, chính xác trong InventoryRepository
+            inventoryRepository.deleteBySalesStaffAccountId(id);
+
+            // Sau đó xóa bản ghi SalesStaff
+            salesStaffRepository.deleteByAccountId(id);
+        } else if ("Admin".equals(role)) {
+            systemLogRepository.deleteByAdminAccountId(id);
+            faqRepository.clearUpdatedBy(id);
+            policyRepository.clearUpdatedBy(id);
+            // cập nhật lại các approvedBy khác nếu cần
+            adminRepository.deleteByAccountId(id);
+        }
+
+        // ✅ Cuối cùng xóa Account
         accountRepository.deleteById(id);
     }
 

@@ -63,11 +63,8 @@ public class OwnerController {
         try {
             Account account = jwtUtil.getAccountFromToken(token);
 
-            if (!"ShopOwner".equalsIgnoreCase(account.getRole().getName())) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
 
-            List<TopProductDTO> topProducts = ownerService.getTopSellingProducts(account.getId());
+            List<TopProductDTO> topProducts = ownerService.getTopSellingProducts();
             accessLogService.logAction(account.getId(), "Viewed dashboard - top-selling products");
 
             return ResponseEntity.ok(topProducts);
@@ -115,7 +112,8 @@ public class OwnerController {
     }
 
     // ========== PHẦN ĐÃ SỬA LỖI ==========
-    // Đã xóa phương thức getAllProducts() cũ và chỉ giữ lại phương thức searchProducts() mới.
+    // Đã xóa phương thức getAllProducts() cũ và chỉ giữ lại phương thức
+    // searchProducts() mới.
     @Operation(summary = "Lấy và tìm kiếm sản phẩm của shop", description = """
                 ✅ Dành cho ShopOwner và Staff:
                 - Trả về danh sách tất cả sản phẩm thuộc Shop của người dùng.
@@ -154,8 +152,8 @@ public class OwnerController {
 
         // Giả sử bạn đã có phương thức `searchProductsByOwner` trong service
         // Nếu chưa, bạn cần tạo nó như hướng dẫn ở lần trả lời trước
-        List<OwnerProductListDTO> products = ownerService.searchProductsByOwner(account.getId(), keyword);
-        
+        List<OwnerProductListDTO> products = ownerService.searchProductsByOwner(keyword);
+
         String logAction = (keyword == null || keyword.isEmpty())
                 ? "Xem tất cả sản phẩm"
                 : "Tìm kiếm sản phẩm với từ khóa: " + keyword;

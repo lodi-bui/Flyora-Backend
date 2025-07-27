@@ -10,4 +10,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     @Query("SELECT MAX(p.id) FROM Payment p")
     Optional<Integer> findMaxId();
 
+    void deleteByCustomerId(Integer customerId);
+
 }
