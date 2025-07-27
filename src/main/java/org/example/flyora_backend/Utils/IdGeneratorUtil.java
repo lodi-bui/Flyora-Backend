@@ -1,4 +1,4 @@
-package org.example.flyora_backend.utils;
+package org.example.flyora_backend.Utils;
 
 import jakarta.annotation.PostConstruct;
 import org.example.flyora_backend.model.*; // Import các model cần thiết

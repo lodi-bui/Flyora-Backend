@@ -1,4 +1,4 @@
-package org.example.flyora_backend.utils;
+package org.example.flyora_backend.Utils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;

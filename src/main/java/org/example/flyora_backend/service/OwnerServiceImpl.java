@@ -24,7 +24,7 @@ import org.example.flyora_backend.repository.ProductReviewRepository;
 import org.example.flyora_backend.repository.PromotionRepository;
 import org.example.flyora_backend.repository.ShopOwnerRepository;
 import org.example.flyora_backend.repository.ToyDetailRepository;
-import org.example.flyora_backend.utils.IdGeneratorUtil;
+import org.example.flyora_backend.Utils.IdGeneratorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

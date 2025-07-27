@@ -10,7 +10,7 @@ import org.example.flyora_backend.model.Account;
 import org.example.flyora_backend.model.Product;
 import org.example.flyora_backend.service.AccessLogService;
 import org.example.flyora_backend.service.OwnerService;
-import org.example.flyora_backend.utils.JwtUtil;
+import org.example.flyora_backend.Utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

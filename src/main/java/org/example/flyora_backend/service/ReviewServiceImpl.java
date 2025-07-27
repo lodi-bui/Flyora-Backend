@@ -9,7 +9,7 @@ import org.example.flyora_backend.model.ProductReview;
 import org.example.flyora_backend.repository.CustomerRepository;
 import org.example.flyora_backend.repository.ProductRepository;
 import org.example.flyora_backend.repository.ProductReviewRepository;
-import org.example.flyora_backend.utils.IdGeneratorUtil;
+import org.example.flyora_backend.Utils.IdGeneratorUtil;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 

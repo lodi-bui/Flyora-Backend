@@ -8,7 +8,7 @@ import java.util.Map;
 import org.example.flyora_backend.DTOs.*; // Import tất cả DTOs
 import org.example.flyora_backend.model.*; // Import tất cả models
 import org.example.flyora_backend.repository.*;
-import org.example.flyora_backend.utils.IdGeneratorUtil;
+import org.example.flyora_backend.Utils.IdGeneratorUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;

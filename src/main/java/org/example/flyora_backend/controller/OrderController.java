@@ -9,7 +9,7 @@ import org.example.flyora_backend.DTOs.OrderHistoryDTO;
 import org.example.flyora_backend.service.AccessLogService;
 import org.example.flyora_backend.service.OrderService;
 import org.example.flyora_backend.service.PaymentService;
-import org.example.flyora_backend.utils.VNPayUtil;
+import org.example.flyora_backend.Utils.VNPayUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

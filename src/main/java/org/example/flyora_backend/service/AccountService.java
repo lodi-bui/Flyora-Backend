@@ -5,7 +5,7 @@ import org.example.flyora_backend.DTOs.AccountDTO;
 import org.example.flyora_backend.DTOs.UserDTO;
 import org.example.flyora_backend.model.*;
 import org.example.flyora_backend.repository.*;
-import org.example.flyora_backend.utils.IdGeneratorUtil;
+import org.example.flyora_backend.Utils.IdGeneratorUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
