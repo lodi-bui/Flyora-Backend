@@ -5,7 +5,6 @@ version: 0.2
 # or AWS Secrets Manager.
 env:
   variables:
-    JAVA_HOME: "/usr/lib/jvm/java-17-amazon-corretto"
     MAVEN_OPTS: "-Xmx1024m"
   # parameter-store:
   #   DB_HOST: /flyora/prod/db/host
@@ -18,8 +17,12 @@ phases:
       java: corretto17
     commands:
       - echo "Installing dependencies..."
+      - echo "Setting up Java environment..."
+      - export JAVA_HOME=$JAVA_HOME_17_X64
+      - export PATH=$JAVA_HOME/bin:$PATH
       - echo "Java version:"
       - java -version
+      - echo "JAVA_HOME is set to $JAVA_HOME"
       - echo "Checking Maven wrapper:"
       - chmod +x mvnw
       - ./mvnw -version
