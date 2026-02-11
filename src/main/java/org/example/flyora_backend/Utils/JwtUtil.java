@@ -44,6 +44,22 @@ public class JwtUtil {
                 .compact();
     }
 
+    public String generatePreAuthToken(Account account) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + 5 * 60 * 1000); // 5 phút
+
+        return Jwts.builder()
+                .setSubject(account.getUsername()) 
+                .claim("id", account.getId())
+                .claim("role", "PRE_AUTH")          // role tạm
+                .claim("email", account.getEmail())
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+
     public Account getAccountFromToken(String token) {
         String username = getUsernameFromToken(token);
         return accountRepository.findByUsername(username)
