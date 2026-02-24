@@ -27,6 +27,7 @@ public class OrderServiceImpl implements OrderService {
     private final ShippingMethodRepository shippingMethodRepository;
     private final IdGeneratorUtil idGeneratorUtil;
     private final GHNService ghnService;
+    private final EmailService emailService;
 
     @Override
     public Order getOrderByCode(String orderCode) {
@@ -80,7 +81,7 @@ public class OrderServiceImpl implements OrderService {
                 "orderCode", savedOrder.getOrderCode(),
                 "status", savedOrder.getStatus());
     }
-
+////////////////////////////////////////////////////////////
     @Override
     @Transactional
     public Map<String, Object> createPayment(CreatePaymentDTO dto) {
@@ -115,6 +116,7 @@ public class OrderServiceImpl implements OrderService {
                     productRepository.save(product);
                 }
                 orderRepository.save(order);
+                emailService.sendOrderConfirmationEmail(order);
 
             } catch (Exception e) {
                 throw new RuntimeException("Tạo đơn vận chuyển thất bại: " + e.getMessage(), e);
@@ -130,6 +132,7 @@ public class OrderServiceImpl implements OrderService {
 
         return Map.of("paymentId", payment.getId(), "orderStatus", order.getStatus());
     }
+//////////////////////////////////////////////////////////
 
     @Transactional
     public void attachOrderCode(Integer orderId, String orderCode) {
