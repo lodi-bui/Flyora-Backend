@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.example.flyora_backend.DTOs.EmailDTO;
+import org.example.flyora_backend.model.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -78,6 +79,27 @@ public class EmailServiceImpl implements EmailService {
             otpStore.remove(key);
         }
         return isCorrect;
+    }
+
+    @Override
+    public void sendOrderConfirmationEmail(Order order) {
+
+        String email = order.getCustomer().getAccount().getEmail();
+
+        String subject = "Flyora - Xác nhận đơn hàng #" + order.getOrderCode();
+
+        String content = """
+            <h2>Cảm ơn bạn đã mua hàng tại Flyora 🐦</h2>
+            <p>Mã đơn hàng: <b>%s</b></p>
+            <p>Trạng thái hiện tại: <b>%s</b></p>
+            """.formatted(order.getOrderCode(), order.getStatus());
+
+        EmailDTO emailDTO = new EmailDTO();
+        emailDTO.setTo(email);
+        emailDTO.setSubject(subject);
+        emailDTO.setContent(content);
+
+        sendEmail(emailDTO);
     }
 }
     
