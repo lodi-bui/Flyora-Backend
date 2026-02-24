@@ -44,6 +44,9 @@ public class AuthServiceImpl implements AuthService {
     @Autowired
     private IdGeneratorUtil idGeneratorUtil;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public Map<String, Object> registerCustomer(RegisterDTO request) {
         if (accountRepository.existsByUsername(request.getUsername())) {
@@ -121,9 +124,12 @@ public class AuthServiceImpl implements AuthService {
             }
         }
 
-        String token = jwtUtil.generateToken(account);
-        response.setToken(token);
-        accessLogService.logAction(account.getId(), "Đăng nhập thành công");
+        String otp = emailService.createAndStoreOtp(account.getUsername());
+        emailService.sendOTPEmail(account.getEmail(), otp);
+
+        String preAuthToken = jwtUtil.generatePreAuthToken(account);
+        response.setToken(preAuthToken);
+        accessLogService.logAction(account.getId(), "Đăng nhập thành công bước 1. Tiến hành xác thực OTP.");
         return response;
-    }
+    } 
 }
