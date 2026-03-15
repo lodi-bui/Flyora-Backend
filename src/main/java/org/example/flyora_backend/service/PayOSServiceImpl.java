@@ -39,9 +39,9 @@ public class PayOSServiceImpl implements PayOSService {
                     .amount(amount)
                     .description(orderCode)
 
-                    .returnUrl("https://flyora-frontend.vercel.app/success-payment") 
+                    .returnUrl("http://localhost:3000/success-payment") 
 
-                    .cancelUrl("https://flyora-frontend.vercel.app/cancel-payment") 
+                    .cancelUrl("http://localhost:3000/cancel-payment") 
                     .build();
 
             CheckoutResponseData response = payOS.createPaymentLink(paymentData);
